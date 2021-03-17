@@ -1,5 +1,5 @@
 import { __prood__ } from "./constatns";
-import { Post } from "./entities/Post";
+import { Post, User, BaseEntity } from "./entities";
 import { MikroORM } from "@mikro-orm/core";
 import path from "path";
 import dotenv from "dotenv";
@@ -17,6 +17,6 @@ export default {
         path: path.join(__dirname, "./migrations"),
         pattern: /^[\w-]+\d+\.[tj]s$/
     },
-    entities: [Post],
+    entities: [BaseEntity, Post, User],
     debug: !__prood__
 } as Parameters<typeof MikroORM.init>[0];

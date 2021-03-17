@@ -1,16 +1,19 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import { Field, ObjectType } from "type-graphql";
+import { Base as BaseEntity } from "./Base";
+import { User } from "./User";
 
+@ObjectType()
 @Entity()
-export class Post {
+export class Post extends BaseEntity {
+    @Field()
     @PrimaryKey()
     id!: number;
 
-    @Property({ type: "date" })
-    createdAt = new Date();
-
-    @Property({ type: "date", onUpdate: () => new Date() })
-    updatedAt = new Date();
-
+    @Field()
     @Property({ type: "text" })
     title!: string;
+
+    @ManyToOne()
+    author!: User;
 }
