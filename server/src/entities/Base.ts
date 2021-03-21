@@ -19,7 +19,7 @@ export abstract class Base {
     @Property({ type: "tinyint", default: 0 })
     isDelete = 0;
 
-    delete() {
+    delete(): void {
         this.deletedAt = new Date();
         this.isDelete = 1;
     }

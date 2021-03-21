@@ -25,7 +25,7 @@ sketch
 .idea
 
 ### config file ###
-.env
+**/.env
 
 ### migrations ###
-src/migrations/*
+server/src/migrations/**
