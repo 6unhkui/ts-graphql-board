@@ -5,15 +5,19 @@ logs
 **/*.backup.*
 **/*.back.*
 
-node_modules
-bower_components
-dist
+**/node_modules
+**/node_modules
+**/bower_components
+**/dist
 
 *.sublime*
 
 psd
 thumb
 sketch
+
+## next ##
+**/.next
 
 ### vscode ###
 .vscode/*

@@ -1,11 +1,10 @@
-import { Container } from "../components/Container";
-import { DarkModeSwitch } from "../components/DarkModeSwitch";
+import { Heading } from "@chakra-ui/layout";
+import Layout from "components/Layout";
 
 const Index: React.FC = () => (
-    <Container height="100vh">
-        <DarkModeSwitch />
-        안녕
-    </Container>
+    <Layout variant="regular">
+        <Heading fontSize="6rem">ts-graphql-board-app</Heading>
+    </Layout>
 );
 
 export default Index;

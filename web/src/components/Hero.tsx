@@ -1,7 +1,7 @@
 import { Flex, Heading } from "@chakra-ui/react";
 
 interface Props {
-    title: string;
+    title?: string;
 }
 
 export const Hero: React.FC<Props> = ({ title }) => (
