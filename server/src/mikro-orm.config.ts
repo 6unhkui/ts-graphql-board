@@ -1,4 +1,4 @@
-import { __prood__ } from "./constatns";
+import { __prood__ } from "./constants";
 import { Post, User, BaseEntity } from "./entities";
 import { MikroORM } from "@mikro-orm/core";
 import path from "path";

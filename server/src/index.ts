@@ -1,5 +1,5 @@
 import { MyContext } from "./types";
-import { __prood__ } from "./constatns";
+import { COOKIE_NAME, __prood__ } from "./constants";
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import mikroOrmConfig from "./mikro-orm.config";
@@ -7,7 +7,7 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { PostResolver, UserResolver } from "./resolvers";
-import redis from "redis";
+import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
@@ -19,7 +19,7 @@ const main = async () => {
     const app = express();
 
     const RedisStore = connectRedis(session);
-    const redisClient = redis.createClient();
+    const redis = new Redis();
 
     app.use(
         cors({
@@ -30,9 +30,9 @@ const main = async () => {
 
     app.use(
         session({
-            name: "qid", // 브라우저에 저장되는 cookie 이름
+            name: COOKIE_NAME, // 브라우저에 저장되는 cookie 이름
             store: new RedisStore({
-                client: redisClient,
+                client: redis,
                 disableTTL: true,
                 disableTouch: true
             }),
@@ -53,7 +53,7 @@ const main = async () => {
             resolvers: [PostResolver, UserResolver],
             validate: false
         }),
-        context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
+        context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis })
     });
 
     apolloServer.applyMiddleware({

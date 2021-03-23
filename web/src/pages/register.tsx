@@ -7,16 +7,19 @@ import InputField from "components/InputField";
 import { useRegisterMutation } from "generated/graphql";
 import { toErrorMap } from "utils/toErrorMap";
 import Layout from "components/Layout";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "utils/createUrqlClient";
+import { NextPage } from "next";
 
 const validationSchema = Yup.object().shape({
-    account: Yup.string().min(2, "Too Short!").max(70, "Too Long!").required("Required"),
+    email: Yup.string().min(2, "Too Short!").max(70, "Too Long!").email().required("Required"),
     password: Yup.string().min(2, "Too Short!").max(70, "Too Long!").required("Required"),
     name: Yup.string().min(2, "Too Short!").max(70, "Too Long!").required("Required")
 });
 
 interface registerProps {}
 
-const register: React.FC<registerProps> = ({}) => {
+const Register: NextPage<registerProps> = ({}) => {
     const router = useRouter();
     const [, register] = useRegisterMutation();
 
@@ -28,7 +31,7 @@ const register: React.FC<registerProps> = ({}) => {
                 </Heading>
             </Box>
             <Formik
-                initialValues={{ account: "", password: "", name: "" }}
+                initialValues={{ email: "", password: "", name: "" }}
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setErrors }) => {
                     const { data } = await register({ options: values });
@@ -41,7 +44,7 @@ const register: React.FC<registerProps> = ({}) => {
             >
                 {({ isSubmitting }) => (
                     <Form>
-                        <InputField name="account" label="Account" placeholder="계정을 입력하세요." />
+                        <InputField name="email" label="Email" placeholder="계정을 입력하세요." />
                         <Box mt={4}>
                             <InputField name="password" label="Password" type="password" placeholder="비밀번호를 입력하세요." />
                         </Box>
@@ -58,4 +61,4 @@ const register: React.FC<registerProps> = ({}) => {
     );
 };
 
-export default register;
+export default withUrqlClient(createUrqlClient)(Register);

@@ -12,7 +12,7 @@ export class User extends BaseEntity {
 
     @Field()
     @Property({ unique: true })
-    account!: string;
+    email!: string;
 
     @Property()
     password!: string;
