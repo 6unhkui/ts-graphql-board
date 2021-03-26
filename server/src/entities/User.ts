@@ -1,26 +1,32 @@
-import { Collection, Entity, LoadStrategy, OneToMany, PrimaryKey, Property } from "@mikro-orm/core";
+import { Reaction } from "./Reaction";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
-import { Base as BaseEntity } from "./Base";
+import { Base } from "./Base";
 import { Post } from "./Post";
 
 @ObjectType()
 @Entity()
-export class User extends BaseEntity {
+export class User extends Base {
     @Field()
-    @PrimaryKey()
+    @PrimaryGeneratedColumn()
     id!: number;
 
     @Field()
-    @Property({ unique: true })
+    @Column({ unique: true })
     email!: string;
 
-    @Property()
+    @Column()
     password!: string;
 
     @Field()
-    @Property()
+    @Column()
     name!: string;
 
-    @OneToMany(() => Post, post => post.author, LoadStrategy.JOINED)
-    posts = new Collection<Post>(this);
+    @Field(() => Post)
+    @OneToMany(() => Post, post => post.author)
+    posts: Promise<Post[]>;
+
+    @Field(() => Reaction, { nullable: true })
+    @OneToMany(() => Reaction, reaction => reaction.user)
+    reactions: Promise<Reaction[]>;
 }

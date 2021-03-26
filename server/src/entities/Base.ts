@@ -1,22 +1,22 @@
-import { Property } from "@mikro-orm/core";
+import { BaseEntity, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 
 @ObjectType()
-export abstract class Base {
+export abstract class Base extends BaseEntity {
     @Field(() => String)
-    @Property({ type: "date" })
+    @CreateDateColumn()
     createdAt = new Date();
 
     @Field(() => String)
-    @Property({ type: "date", onUpdate: () => new Date() })
+    @UpdateDateColumn()
     updatedAt = new Date();
 
     @Field(() => String, { nullable: true })
-    @Property({ type: "date", nullable: true })
+    @Column({ type: "date", nullable: true })
     deletedAt?: Date;
 
     @Field(() => Boolean)
-    @Property({ type: "tinyint", default: 0 })
+    @Column({ type: "smallint", default: 0 })
     isDelete = 0;
 
     delete(): void {

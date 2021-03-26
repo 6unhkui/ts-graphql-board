@@ -30,6 +30,8 @@ sketch
 
 ### config file ###
 **/.env
+**/.env.production
+server/ormconfig.json
 
 ### migrations ###
 server/src/migrations/**

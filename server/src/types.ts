@@ -1,11 +1,13 @@
 import { Redis } from "ioredis";
 import { Session } from "express-session";
-import { EntityManager, IDatabaseDriver, Connection } from "@mikro-orm/core";
 import { Request, Response } from "express";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createReactionLoader } from "./utils/createReactionLoader";
 
 export type MyContext = {
-    em: EntityManager<any> & EntityManager<IDatabaseDriver<Connection>>;
     req: Request & { session?: Session & { userId?: number } };
     res: Response;
     redis: Redis;
+    userLoader: ReturnType<typeof createUserLoader>;
+    reactionLoader: ReturnType<typeof createReactionLoader>;
 };

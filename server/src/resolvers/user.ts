@@ -1,21 +1,21 @@
-import { FORGET_PASSWORD_PREFIX } from "./../constants";
 import { validateRegister } from "./../utils/validate";
 import { User } from "./../entities/User";
 import { Resolver, Ctx, Arg, Mutation, Query } from "type-graphql";
 import { MyContext } from "../types";
 import argon2 from "argon2";
-import { COOKIE_NAME } from "../constants";
-import { UserResponse, RegisterDTO, FieldError, LoginDTO } from "../dtos/User";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX, WEB_URL } from "../constants";
+import { UserResponse, RegisterInput, FieldError, LoginInput } from "../dtos/user";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
+import { getConnection } from "typeorm";
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
     @Mutation(() => UserResponse)
     async changePassword(
         @Arg("token") token: string,
         @Arg("newPassword") newPassword: string,
-        @Ctx() { em, redis, req }: MyContext
+        @Ctx() { redis, req }: MyContext
     ): Promise<UserResponse> {
         if (newPassword.length <= 3) {
             return {
@@ -31,7 +31,8 @@ export class UserResolver {
             };
         }
 
-        const user = await em.findOne(User, { id: parseInt(userId) });
+        const userIdNum = parseInt(userId);
+        const user = await User.findOne(userIdNum);
 
         if (!user) {
             return {
@@ -40,8 +41,7 @@ export class UserResolver {
         }
 
         // 비밀번호를 변경하고 Flush 한다.
-        user.password = await argon2.hash(newPassword);
-        await em.persistAndFlush(user);
+        await User.update({ id: userIdNum }, { password: await argon2.hash(newPassword) });
 
         // Redis에 있는 key 값을 지운다.
         await redis.del(key);
@@ -52,8 +52,8 @@ export class UserResolver {
     }
 
     @Mutation(() => Boolean)
-    async forgotPassword(@Arg("email") email: string, @Ctx() { em, redis }: MyContext): Promise<boolean> {
-        const user = await em.findOne(User, { email });
+    async forgotPassword(@Arg("email") email: string, @Ctx() { redis }: MyContext): Promise<boolean> {
+        const user = await User.findOne({ where: { email } });
         if (!user) {
             // 계정(이메일)이 DB에 없을 경우
             return true;
@@ -65,25 +65,25 @@ export class UserResolver {
         await sendEmail(
             email,
             "[ts-graphql-board] Change Password",
-            `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`
+            `<a href="${WEB_URL}/change-password/${token}">Reset Password</a>`
         );
 
         return true;
     }
 
     @Query(() => User, { nullable: true })
-    async me(@Ctx() { em, req }: MyContext): Promise<User | null> {
+    async me(@Ctx() { req }: MyContext): Promise<User | undefined> {
         // 로그인을 하지 않았을 경우
         if (!req.session.userId) {
-            return null;
+            return undefined;
         }
 
-        const user = await em.findOne(User, { id: req.session.userId });
+        const user = await User.findOne({ id: req.session.userId });
         return user;
     }
 
     @Mutation(() => UserResponse)
-    async register(@Arg("options") options: RegisterDTO, @Ctx() { em, req }: MyContext): Promise<UserResponse> {
+    async register(@Arg("options") options: RegisterInput, @Ctx() { req }: MyContext): Promise<UserResponse> {
         const errors = validateRegister(options);
         if (errors) {
             return {
@@ -92,15 +92,23 @@ export class UserResolver {
         }
 
         const hashedPassword = await argon2.hash(options.password);
-        const user = em.create(User, {
-            email: options.email,
-            password: hashedPassword,
-            name: options.name
-        });
-
+        let user;
         try {
-            await em.persistAndFlush(user);
+            const result = await getConnection()
+                .createQueryBuilder()
+                .insert()
+                .into(User)
+                .values({
+                    email: options.email,
+                    password: hashedPassword,
+                    name: options.name
+                })
+                .returning("*")
+                .execute();
+            console.log("result", result);
+            user = result.raw[0];
         } catch (err) {
+            console.log("error", err);
             // duplicate email error
             if (err.code === "23505") {
                 return {
@@ -116,8 +124,8 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
-    async login(@Arg("options") options: LoginDTO, @Ctx() { em, req }: MyContext): Promise<UserResponse> {
-        const user = await em.findOne(User, { email: options.email });
+    async login(@Arg("options") options: LoginInput, @Ctx() { req }: MyContext): Promise<UserResponse> {
+        const user = await User.findOne({ where: { email: options.email } });
         if (!user) {
             return {
                 errors: [new FieldError("email", "that email dosen't exist")]

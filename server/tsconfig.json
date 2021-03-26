@@ -2,7 +2,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "outDir": "./dist",
-        "target": "esnext",
+        "target": "es6",
         "module": "commonjs",
         "lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
         "moduleResolution": "node",
@@ -18,8 +18,9 @@
         "esModuleInterop": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "skipLibCheck": true
     },
     "exclude": ["node_modules"],
-    "include": ["./src/**/*.tsx", "./src/**/*.ts"]
+    "include": ["./src/**/*.tsx", "./src/**/*.ts", "src/mikro-orm.config"]
 }

@@ -2,7 +2,7 @@ import { User } from "./../entities/User";
 import { InputType, Field, ObjectType } from "type-graphql";
 
 @InputType()
-export class RegisterDTO {
+export class RegisterInput {
     @Field()
     email: string;
 
@@ -14,7 +14,7 @@ export class RegisterDTO {
 }
 
 @InputType()
-export class LoginDTO {
+export class LoginInput {
     @Field()
     email: string;
 

@@ -1,32 +1,40 @@
+import dotenv from "dotenv-safe";
+dotenv.config();
+
+import "reflect-metadata";
+import { createReactionLoader } from "./utils/createReactionLoader";
 import { MyContext } from "./types";
 import { COOKIE_NAME, __prood__ } from "./constants";
-import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
-import mikroOrmConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import { PostResolver, UserResolver } from "./resolvers";
+import { PostResolver, UserResolver, ReactionResolver } from "./resolvers";
 import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+import { createConnection } from "typeorm";
+import ormconfig from "./ormconfig";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
-    const orm = await MikroORM.init(mikroOrmConfig);
-    await orm.getMigrator().up();
+    console.log(process.env.DB_PASSWORD, process.env.REDIS_URL, ormconfig, process.env.SESSION_SECRET);
+    const conn = await createConnection(ormconfig);
+    // await conn.runMigrations();
 
     const app = express();
 
     const RedisStore = connectRedis(session);
-    const redis = new Redis();
+    const redis = new Redis(process.env.REDIS_URL);
 
     app.use(
         cors({
-            origin: "http://localhost:3000",
+            origin: process.env.WEB_URL,
             credentials: true
         })
     );
+
+    app.set("proxy", 1);
 
     app.use(
         session({
@@ -43,25 +51,31 @@ const main = async () => {
                 secure: __prood__ // cookie only works in https
             },
             saveUninitialized: false,
-            secret: "dklsklwkcsdsaodpsoapdslweldaspcsasas",
+            secret: process.env.SESSION_SECRET || "wekpaslpcmlskldapw",
             resave: false
         })
     );
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [PostResolver, UserResolver],
+            resolvers: [PostResolver, UserResolver, ReactionResolver],
             validate: false
         }),
-        context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis })
+        context: ({ req, res }): MyContext => ({
+            req,
+            res,
+            redis,
+            userLoader: createUserLoader(),
+            reactionLoader: createReactionLoader()
+        })
     });
-
+    createUserLoader;
     apolloServer.applyMiddleware({
         app,
         cors: false
     });
 
-    app.listen(4000, () => {
+    app.listen(parseInt(process.env.WEB_URL || "4000"), () => {
         console.log("server started on localhost:4000");
     });
 };
