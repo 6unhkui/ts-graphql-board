@@ -5,13 +5,9 @@ import path from "path";
 
 export default {
     type: "postgres",
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    url: process.env.DATABASE_URL,
     entities: [Base, Post, User, Reaction],
-    migrations: [path.join(__dirname, "./src/migrations/*")],
-    // synchronize: true,
+    // migrations: [path.join(__dirname, "./migrations/*")],
+    synchronize: true,
     logging: !__prood__
 } as ConnectionOptions;

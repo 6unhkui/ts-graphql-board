@@ -11,7 +11,7 @@ COPY package*.json ./
 COPY yarn.lock ./
 
 # 4. 의존성 설치
-RUN yarn
+RUN npm install
 
 # 5. Docker 이미지 안에 앱의 소스코드를 넣기 위해 COPY 명령어로 앱 소스 추가
 COPY . .
@@ -19,7 +19,7 @@ COPY . .
 COPY .env.production .env
 
 # 6. 애플리케이션 빌드
-RUN yarn build
+RUN npm run build
 
 # 7. NODE_ENV 값을 프로덕션으로 설정한다.
 ENV NODE_ENV production

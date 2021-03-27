@@ -1,7 +1,5 @@
-import dotenv from "dotenv-safe";
-dotenv.config();
-
 import "reflect-metadata";
+import "dotenv-safe/config";
 import { createReactionLoader } from "./utils/createReactionLoader";
 import { MyContext } from "./types";
 import { COOKIE_NAME, __prood__ } from "./constants";
@@ -18,7 +16,6 @@ import ormconfig from "./ormconfig";
 import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
-    console.log(process.env.DB_PASSWORD, process.env.REDIS_URL, ormconfig, process.env.SESSION_SECRET);
     const conn = await createConnection(ormconfig);
     // await conn.runMigrations();
 
@@ -34,7 +31,7 @@ const main = async () => {
         })
     );
 
-    app.set("proxy", 1);
+    app.set("trust proxy", 1);
 
     app.use(
         session({
@@ -48,7 +45,8 @@ const main = async () => {
                 maxAge: 1000 * 60 * 60 * 24 * 364 * 10, // 10 years
                 httpOnly: true,
                 sameSite: "lax", // csrf
-                secure: __prood__ // cookie only works in https
+                secure: __prood__, // cookie only works in https
+                domain: __prood__ ? ".boardapp.ga" : undefined
             },
             saveUninitialized: false,
             secret: process.env.SESSION_SECRET || "wekpaslpcmlskldapw",
@@ -75,7 +73,7 @@ const main = async () => {
         cors: false
     });
 
-    app.listen(parseInt(process.env.WEB_URL || "4000"), () => {
+    app.listen(parseInt(process.env.PORT || "4000"), () => {
         console.log("server started on localhost:4000");
     });
 };
