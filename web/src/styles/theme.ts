@@ -1,9 +1,10 @@
-import { extendTheme } from "@chakra-ui/react";
+import { ColorMode, extendTheme, ThemingProps } from "@chakra-ui/react";
 import { createBreakpoints } from "@chakra-ui/theme-tools";
 
 const fonts = { mono: `'Menlo', monospace` };
 const palette = {
     primary: {
+        200: "#719bff",
         500: "#4379FB"
     }
 };
@@ -17,30 +18,36 @@ const breakpoints = createBreakpoints({
 
 const theme = extendTheme({
     config: {
-        useSystemColorMode: true
+        // useSystemColorMode: true
     },
     colors: {
         ...palette,
         black: "#16161D"
     },
     fonts,
-    breakpoints
-    // components: {
-    //     Button: {
-    //         // 3. We can add a new visual variant
-    //         variants: {
-    //             "with-shadow": {
-    //                 bg: "red.400",
-    //                 boxShadow: "0 0 2px 2px #efdfde"
-    //             },
-    //             // 4. We can override existing variants
-    //             solid: props => ({
-    //                 color: "white",
-    //                 bg: props.colorMode === "dark" ? "blue.300" : palette.primary
-    //             })
-    //         }
-    //     }
-    // }
+    breakpoints,
+    components: {
+        Textarea: {
+            baseStyle: {
+                minHeight: "300px"
+            }
+        },
+        Button: {
+            variants: {
+                solid: {
+                    color: "white",
+                    bg: "primary.500",
+                    _hover: {
+                        bg: "primary.200"
+                    }
+                },
+                outline: {
+                    color: "primary.500",
+                    borderColor: "primary.500"
+                }
+            }
+        }
+    }
 });
 
 export default theme;

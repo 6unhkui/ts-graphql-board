@@ -7,7 +7,7 @@ import { NextPage } from "next";
 import { toErrorMap } from "utils/toErrorMap";
 import * as Yup from "yup";
 import { useChangePasswordMutation } from "generated/graphql";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "utils/createUrqlClient";
@@ -23,13 +23,13 @@ const validationSchema = Yup.object().shape({
         })
 });
 
-const ChangePassword: NextPage<{ token?: string }> = ({ token = "" }) => {
+const ChangePassword: NextPage = () => {
     const router = useRouter();
     const [, changePassword] = useChangePasswordMutation();
     const [tokenError, setTokenError] = useState("");
 
     return (
-        <Layout variant="small">
+        <Layout variant="small" title="Change Password">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     Change Password
@@ -55,7 +55,7 @@ const ChangePassword: NextPage<{ token?: string }> = ({ token = "" }) => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setErrors }) => {
                     const { data } = await changePassword({
-                        token,
+                        token: typeof router.query.token === "string" ? router.query.token : "",
                         newPassword: values.newPassword
                     });
 
@@ -95,12 +95,6 @@ const ChangePassword: NextPage<{ token?: string }> = ({ token = "" }) => {
             </Formik>
         </Layout>
     );
-};
-
-ChangePassword.getInitialProps = ({ query }) => {
-    return {
-        token: query.token as string
-    };
 };
 
 export default withUrqlClient(createUrqlClient)(ChangePassword);

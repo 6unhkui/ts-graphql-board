@@ -1,0 +1,13 @@
+fragment RegularPost on Post {
+    id
+    title
+    content
+    contentSnippet
+    likes
+    dislikes
+    createdAt
+    reactionStatus
+    author {
+        ...RegularUser
+    }
+}

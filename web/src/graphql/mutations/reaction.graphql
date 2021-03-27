@@ -1,0 +1,3 @@
+mutation Reaction($postId: Int!, $value: Int!) {
+    reaction(postId: $postId, value: $value)
+}

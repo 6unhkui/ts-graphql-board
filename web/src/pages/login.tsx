@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Box, Heading, Flex, Link } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import InputField from "components/InputField";
 import { useLoginMutation } from "generated/graphql";
 import { toErrorMap } from "utils/toErrorMap";
@@ -11,6 +11,7 @@ import { createUrqlClient } from "utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import { NextPage } from "next";
 import NextLink from "next/link";
+import SEO from "components/SEO";
 
 const validationSchema = Yup.object().shape({
     email: Yup.string().email().required("Required"),
@@ -24,7 +25,7 @@ const Login: NextPage<loginProps> = ({}) => {
     const [, login] = useLoginMutation();
 
     return (
-        <Layout variant="small">
+        <Layout variant="small" title="Login">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     Login
@@ -38,7 +39,11 @@ const Login: NextPage<loginProps> = ({}) => {
                     if (data?.login.errors) {
                         setErrors(toErrorMap(data?.login.errors));
                     } else if (data?.login.user) {
-                        router.push("/");
+                        if (typeof router.query.next === "string") {
+                            router.push(`/${router.query.next}`);
+                        } else {
+                            router.push("/");
+                        }
                     }
                 }}
             >

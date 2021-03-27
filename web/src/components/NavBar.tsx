@@ -23,28 +23,30 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
             <>
                 <NextLink href="/login">
                     <Link mr={4} color="white">
-                        login
+                        Login
                     </Link>
                 </NextLink>
                 <NextLink href="/register">
-                    <Link color="white">register</Link>
+                    <Link color="white">Register</Link>
                 </NextLink>
             </>
         );
     } else {
         // user is logged in
         body = (
-            <Flex>
-                <Box mr={4}>{data.me.name}</Box>
-                <Button variant="link" onClick={() => logout()} isLoading={logoutFetching}>
+            <>
+                <Box mr={4} color="white">
+                    Hi, {data.me.name} 👋
+                </Box>
+                <Button variant="link" onClick={() => logout()} isLoading={logoutFetching} color="white">
                     Logout
                 </Button>
-            </Flex>
+            </>
         );
     }
 
     return (
-        <Flex bg="primary.500" p={4} ml={"auto"}>
+        <Flex bg="primary.500" p={4} ml={"auto"} position="sticky" zIndex={1} top={0}>
             <Box>
                 <NextLink href="/">
                     <Link color="white" fontWeight="bold">
@@ -52,10 +54,12 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
                     </Link>
                 </NextLink>
             </Box>
-            <Box ml={"auto"}>{body}</Box>
-            <Box ml={4}>
-                <DarkModeSwitch />
-            </Box>
+            <Flex ml={"auto"}>
+                {body}
+                <Box ml={4}>
+                    <DarkModeSwitch />
+                </Box>
+            </Flex>
         </Flex>
     );
 };

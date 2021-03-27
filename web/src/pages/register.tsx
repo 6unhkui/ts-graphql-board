@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Box, Heading } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import InputField from "components/InputField";
 import { useRegisterMutation } from "generated/graphql";
 import { toErrorMap } from "utils/toErrorMap";
@@ -24,7 +24,7 @@ const Register: NextPage<registerProps> = ({}) => {
     const [, register] = useRegisterMutation();
 
     return (
-        <Layout variant="small">
+        <Layout variant="small" title="Register">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     Register

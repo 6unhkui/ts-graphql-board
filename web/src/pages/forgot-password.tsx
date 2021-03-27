@@ -7,7 +7,6 @@ import { useForgotPasswordMutation } from "generated/graphql";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
 import { createUrqlClient } from "utils/createUrqlClient";
-import { toErrorMap } from "utils/toErrorMap";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
@@ -21,7 +20,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
     const [complete, setComplete] = useState(false);
 
     return (
-        <Layout variant="small">
+        <Layout variant="small" title="Forgot Password">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     Forgot Password
