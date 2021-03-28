@@ -8,7 +8,7 @@
 
 - Typescript
 - Node.js, Express
-- GraphQL, Apollo
+- GraphQL, Apollo Server
 - TypeORM
 - Postgresql, Redis
 
