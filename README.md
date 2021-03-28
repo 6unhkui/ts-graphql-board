@@ -9,7 +9,7 @@
 - Typescript
 - Node.js, Express
 - GraphQL, Apollo
-- MikroORM
+- TypeORM
 - Postgresql, Redis
 
 ### Web
