@@ -5,14 +5,16 @@ import React, { useState } from "react";
 
 interface ReactionSectionProps {
     post: RegularPostFragment;
+    disabled: boolean;
 }
 
-const ReactionSection: React.FC<ReactionSectionProps> = ({ post }) => {
+const ReactionSection: React.FC<ReactionSectionProps> = ({ post, disabled }) => {
     const [{ fetching, operation }, reaction] = useReactionMutation();
 
     return (
         <Center>
             <Button
+                disabled={disabled}
                 variant={post.reactionStatus === 1 ? "solid" : "outline"}
                 mr={2}
                 onClick={() => {
@@ -26,6 +28,7 @@ const ReactionSection: React.FC<ReactionSectionProps> = ({ post }) => {
                 😍 Like {post?.likes}
             </Button>
             <Button
+                disabled={disabled}
                 variant={post.reactionStatus === -1 ? "solid" : "outline"}
                 onClick={() => {
                     reaction({

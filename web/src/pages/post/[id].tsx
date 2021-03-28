@@ -53,7 +53,7 @@ const Post: React.FC<PostProps> = ({}) => {
                         {data?.post?.content}
                     </Box>
 
-                    {meData?.me ? <ReactionSection post={data?.post as RegularPostFragment} /> : null}
+                    <ReactionSection post={data?.post as RegularPostFragment} disabled={!meData.me} />
 
                     <Divider mt={4} mb={6} />
 

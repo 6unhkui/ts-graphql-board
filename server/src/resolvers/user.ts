@@ -64,8 +64,29 @@ export class UserResolver {
 
         await sendEmail(
             email,
-            "[ts-graphql-board] Change Password",
-            `<a href="${WEB_URL}/change-password/${token}">Reset Password</a>`
+            "[Board App] Request Change Password 🔒",
+            `<div>
+                <h1>Change Password</h1>
+                <a href="${WEB_URL}/change-password/${token}">
+                <button
+                    style="
+                        border-radius: 6px;
+                        background-color: #437afb;
+                        padding: 10px 20px;
+                        color: white;
+                        border: 0;
+                        text-transform: uppercase;
+                        font-size: 10px;
+                        letter-spacing: 2px;
+                        height: 45px;
+                        margin-top: 15px;
+                    "
+                >
+                    Reset Password
+                </button>
+                </a>
+            </div>
+            `
         );
 
         return true;

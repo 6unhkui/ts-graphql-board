@@ -31,8 +31,8 @@ const Index: NextPage = () => {
 
     return (
         <Layout variant="regular">
-            <Flex align="center">
-                <Heading fontSize={["2rem", "4rem"]}>Board App 😘</Heading>
+            <Flex align="center" direction="column">
+                <Heading fontSize={["2.5rem", "4rem"]}>Board App 😘</Heading>
                 {meData?.me ? (
                     <NextLink href="create-post">
                         <Button variant="outline" mt={8} ml="auto">

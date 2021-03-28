@@ -8,19 +8,19 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     console.log(testAccount);
 
     // create reusable transporter object using the default SMTP transport
-    const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, // true for 465, false for other ports
+    const transporter = await nodemailer.createTransport({
+        host: "smtp.daum.net",
+        port: 465,
+        // secure: false, // true for 465, false for other ports
         auth: {
-            user: "srh734ghfga45dr4@ethereal.email", // generated ethereal user
-            pass: "2R62asAwZWuUauWmhc" // generated ethereal password
+            user: process.env.NODEMAILER_USER, // generated ethereal user
+            pass: process.env.NODEMAILER_PASS // generated ethereal password
         }
     });
 
     // send mail with defined transport object
     const info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <foo@example.com>',
+        from: `✨ Board App Team <${process.env.NODEMAILER_FROM_EMAIL}>`,
         to,
         subject,
         html
