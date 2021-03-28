@@ -16,3 +16,4 @@
 
 - Typescript
 - React, Next.js
+- URQL
