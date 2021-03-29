@@ -1,4 +1,4 @@
-# Board App
+# Board App (Typescript, GraphQL, Next.js)
 
 학습을 위한 간단한 게시판 만들기 프로젝트입니다. <br/><br/>
 
