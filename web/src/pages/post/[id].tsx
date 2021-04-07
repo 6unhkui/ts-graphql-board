@@ -1,10 +1,8 @@
 import { Box, Center, Divider, Flex, Heading } from "@chakra-ui/layout";
 import { Skeleton, SkeletonText } from "@chakra-ui/skeleton";
 import Layout from "components/Layout";
-import { RegularPostFragment, usePostQuery, useDeletePostMutation, useMeQuery } from "generated/graphql";
-import { withUrqlClient } from "next-urql";
+import { RegularPostFragment, usePostQuery, useMeQuery } from "generated/graphql";
 import React from "react";
-import { createUrqlClient } from "utils/createUrqlClient";
 import moment from "moment";
 import { Button } from "@chakra-ui/button";
 import EditDeletePostButtons from "components/EditDeletePostButtons";
@@ -13,17 +11,18 @@ import NextLink from "next/link";
 import ReactionSection from "components/ReactionSection";
 import { isServer } from "utils/isServer";
 import { useGetIntIdFromUrl } from "hooks/useGetIntIdFromUrl";
+import { withApollo } from "utils/withApollo";
 
 interface PostProps {}
 
 const Post: React.FC<PostProps> = ({}) => {
     const intId = useGetIntIdFromUrl();
-    const [{ data: meData }] = useMeQuery({ pause: isServer() });
-    const [{ data, fetching }] = usePostQuery({ variables: { id: intId } });
+    const { data: meData } = useMeQuery({ skip: isServer() });
+    const { data, loading } = usePostQuery({ variables: { id: intId } });
 
     return (
         <Layout variant="regular" title={data?.post?.title} description={data?.post?.contentSnippet}>
-            {fetching || !data?.post ? (
+            {loading || !data?.post ? (
                 <Box w="100%" borderRadius="lg" overflow="hidden" p={6}>
                     <Skeleton height="50px" />
                     <Skeleton height="8px" mt={4} width="25%" />
@@ -53,7 +52,7 @@ const Post: React.FC<PostProps> = ({}) => {
                         {data?.post?.content}
                     </Box>
 
-                    <ReactionSection post={data?.post as RegularPostFragment} disabled={!meData.me} />
+                    <ReactionSection post={data?.post as RegularPostFragment} disabled={meData ? !meData.me : true} />
 
                     <Divider mt={4} mb={6} />
 
@@ -72,4 +71,4 @@ const Post: React.FC<PostProps> = ({}) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Post);
+export default withApollo({ ssr: true })(Post);

@@ -4,14 +4,12 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/router";
 import InputField from "components/InputField";
-import { useLoginMutation } from "generated/graphql";
+import { MeDocument, MeQuery, useLoginMutation } from "generated/graphql";
 import { toErrorMap } from "utils/toErrorMap";
 import Layout from "components/Layout";
-import { createUrqlClient } from "utils/createUrqlClient";
-import { withUrqlClient } from "next-urql";
 import { NextPage } from "next";
 import NextLink from "next/link";
-import SEO from "components/SEO";
+import { withApollo } from "utils/withApollo";
 
 const validationSchema = Yup.object().shape({
     email: Yup.string().email().required("Required"),
@@ -22,7 +20,7 @@ interface loginProps {}
 
 const Login: NextPage<loginProps> = ({}) => {
     const router = useRouter();
-    const [, login] = useLoginMutation();
+    const [login, { client }] = useLoginMutation();
 
     return (
         <Layout variant="small" title="Login">
@@ -35,7 +33,21 @@ const Login: NextPage<loginProps> = ({}) => {
                 initialValues={{ email: "", password: "" }}
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setErrors }) => {
-                    const { data } = await login({ options: values });
+                    const { data } = await login({
+                        variables: { options: values },
+                        update: (cache, { data }) => {
+                            cache.writeQuery<MeQuery>({
+                                query: MeDocument,
+                                data: {
+                                    __typename: "Query",
+                                    me: data.login.user
+                                }
+                            });
+
+                            cache.evict({ fieldName: "posts:{}" });
+                        }
+                    });
+
                     if (data?.login.errors) {
                         setErrors(toErrorMap(data?.login.errors));
                     } else if (data?.login.user) {
@@ -70,4 +82,4 @@ const Login: NextPage<loginProps> = ({}) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(Login);
+export default withApollo({ ssr: false })(Login);

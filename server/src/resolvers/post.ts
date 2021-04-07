@@ -16,7 +16,7 @@ export class PostResolver {
     @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
-        @Arg("offset", () => Int, { nullable: true }) offset: number | null,
+        @Arg("cursor", () => Int, { nullable: true }) cursor: number | null,
         @Ctx() { req }: MyContext
     ): Promise<PaginatedPosts> {
         // limit 갯수보다 1개 더 조회해서 그 개수가 조회한 데이터 개수보다 크면
@@ -24,20 +24,29 @@ export class PostResolver {
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
 
-        const subQuery = req.session.userId
+        const selectReactionSubQuery = req.session.userId
             ? `(SELECT value FROM reaction WHERE "userId" = ${req.session.userId} AND "postId" = p.id) "reactionStatus"`
             : 'null as "reactionStatus"';
+
+        const fromCursorSubQuery = cursor
+            ? cursor - 1
+            : `
+            SELECT id
+            FROM post
+            ORDER by id desc 
+            LIMIT 1
+        `;
+
         const posts = await getConnection().query(
             `
             SELECT p.*,
                    json_build_object('id', u.id, 'name', u."name" , 'email', u.email ) author,
-                   ${subQuery}
+                   ${selectReactionSubQuery}
             FROM post p
             LEFT OUTER JOIN public.user u ON u.id = p."authorId" AND u."isDelete" = 0
-            WHERE p."isDelete" = 0
+            WHERE p."isDelete" = 0 AND p.id <= (${fromCursorSubQuery})
             ORDER BY p.id DESC
             LIMIT ${realLimitPlusOne}
-            OFFSET ${offset ? offset : 0}
             `
         );
 

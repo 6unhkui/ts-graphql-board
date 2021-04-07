@@ -1,13 +1,13 @@
 import { Button } from "@chakra-ui/button";
-import { Box, Heading } from "@chakra-ui/layout";
+import { Box, Center, Heading } from "@chakra-ui/layout";
 import InputField from "components/InputField";
 import Layout from "components/Layout";
 import { Form, Formik } from "formik";
 import { useForgotPasswordMutation } from "generated/graphql";
-import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
-import { createUrqlClient } from "utils/createUrqlClient";
+import { withApollo } from "utils/withApollo";
 import * as Yup from "yup";
+import NextLink from "next/link";
 
 const validationSchema = Yup.object().shape({
     email: Yup.string().email().required("Required")
@@ -16,7 +16,7 @@ const validationSchema = Yup.object().shape({
 interface ForgotPasswordProps {}
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
-    const [, forgotPassword] = useForgotPasswordMutation();
+    const [forgotPassword] = useForgotPasswordMutation();
     const [complete, setComplete] = useState(false);
 
     return (
@@ -30,13 +30,20 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                 initialValues={{ email: "" }}
                 validationSchema={validationSchema}
                 onSubmit={async values => {
-                    await forgotPassword(values);
+                    await forgotPassword({ variables: values });
                     setComplete(true);
                 }}
             >
                 {({ isSubmitting }) =>
                     complete ? (
-                        <Box>if an account with that email exists, we sent you can email</Box>
+                        <Box textAlign="center">
+                            만약 존재하는 계정이라면, 메일이 정상적으로 전송되었습니다.
+                            <Center mt={4}>
+                                <NextLink href="/">
+                                    <Button>메인으로 가기</Button>
+                                </NextLink>
+                            </Center>
+                        </Box>
                     ) : (
                         <Form>
                             <InputField name="email" label="Email" placeholder="이메일을 입력하세요." />
@@ -52,4 +59,4 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(ForgotPassword);
+export default withApollo({ ssr: false })(ForgotPassword);

@@ -17,7 +17,7 @@ import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
     const conn = await createConnection(ormconfig);
-    // await conn.runMigrations();
+    await conn.runMigrations();
 
     const app = express();
 
@@ -74,7 +74,7 @@ const main = async () => {
     });
 
     app.listen(parseInt(process.env.PORT || "4000"), () => {
-        console.log("server started on localhost:4000");
+        console.log("🚀 server started on localhost:4000");
     });
 };
 

@@ -6,10 +6,9 @@ import { Form, Formik } from "formik";
 import { usePostQuery, useUpdatePostMutation } from "generated/graphql";
 import { useGetIntIdFromUrl } from "hooks/useGetIntIdFromUrl";
 import { useIsAuth } from "hooks/useIsAuth";
-import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
-import { createUrqlClient } from "utils/createUrqlClient";
+import { withApollo } from "utils/withApollo";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
@@ -23,8 +22,8 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
     useIsAuth();
     const router = useRouter();
     const intId = useGetIntIdFromUrl();
-    const [{ data, fetching }] = usePostQuery({ pause: intId === -1, variables: { id: intId } });
-    const [, updatePost] = useUpdatePostMutation();
+    const { data, loading } = usePostQuery({ skip: intId === -1, variables: { id: intId } });
+    const [updatePost] = useUpdatePostMutation();
 
     return (
         <Layout variant="small" title="Edit Post">
@@ -33,7 +32,7 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
                     Edit Post
                 </Heading>
             </Box>
-            {fetching ? null : (
+            {loading ? null : (
                 <Formik
                     initialValues={{
                         title: data?.post?.title ? data?.post?.title : "",
@@ -41,7 +40,12 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
                     }}
                     validationSchema={validationSchema}
                     onSubmit={async values => {
-                        await updatePost({ id: intId, ...values });
+                        await updatePost({
+                            variables: { id: intId, ...values },
+                            update: cache => {
+                                cache.evict({ id: "Post:" + intId });
+                            }
+                        });
                         router.back();
                     }}
                 >
@@ -63,4 +67,4 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(PostEdit);
+export default withApollo({ ssr: false })(PostEdit);

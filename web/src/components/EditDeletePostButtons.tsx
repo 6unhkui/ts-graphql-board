@@ -14,7 +14,7 @@ interface EditDeletePostButtonsProps {
 const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({ id }) => {
     const router = useRouter();
     const [deleteAlertIsOpen, setDeleteAlertIsOpen] = useState(false);
-    const [, deletePost] = useDeletePostMutation();
+    const [deletePost] = useDeletePostMutation();
 
     return (
         <Box ml={"auto"}>
@@ -30,7 +30,12 @@ const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({ id }) => 
                 isOpen={deleteAlertIsOpen}
                 onClose={() => setDeleteAlertIsOpen(false)}
                 onOk={() => {
-                    deletePost({ id });
+                    deletePost({
+                        variables: { id },
+                        update: cache => {
+                            cache.evict({ id: "Post:" + id });
+                        }
+                    });
                     router.push("/");
                 }}
             />

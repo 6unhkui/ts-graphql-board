@@ -1,15 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Heading } from "@chakra-ui/layout";
 import Layout from "components/Layout";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import InputField from "components/InputField";
 import { Button } from "@chakra-ui/button";
-import { useCreatePostMutation, useMeQuery } from "generated/graphql";
+import { useCreatePostMutation } from "generated/graphql";
 import { useRouter } from "next/router";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "utils/createUrqlClient";
 import { useIsAuth } from "hooks/useIsAuth";
+import { withApollo } from "utils/withApollo";
 
 const validationSchema = Yup.object().shape({
     title: Yup.string().required("Required"),
@@ -21,7 +20,7 @@ interface CreatePostProps {}
 const CreatePost: React.FC<CreatePostProps> = ({}) => {
     useIsAuth();
     const router = useRouter();
-    const [, createPost] = useCreatePostMutation();
+    const [createPost] = useCreatePostMutation();
 
     return (
         <Layout variant="small" title="Create Post">
@@ -34,8 +33,13 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
                 initialValues={{ title: "", content: "" }}
                 validationSchema={validationSchema}
                 onSubmit={async values => {
-                    const { error } = await createPost({ input: values });
-                    if (!error) {
+                    const { errors } = await createPost({
+                        variables: { input: values },
+                        update: cache => {
+                            cache.evict({ fieldName: "posts" });
+                        }
+                    });
+                    if (!errors) {
                         router.push("/");
                     }
                 }}
@@ -57,4 +61,4 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(CreatePost);
+export default withApollo({ ssr: false })(CreatePost);

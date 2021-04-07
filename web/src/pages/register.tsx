@@ -4,12 +4,11 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/router";
 import InputField from "components/InputField";
-import { useRegisterMutation } from "generated/graphql";
+import { MeDocument, MeQuery, useRegisterMutation } from "generated/graphql";
 import { toErrorMap } from "utils/toErrorMap";
 import Layout from "components/Layout";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "utils/createUrqlClient";
 import { NextPage } from "next";
+import { withApollo } from "utils/withApollo";
 
 const validationSchema = Yup.object().shape({
     email: Yup.string().min(2, "Too Short!").max(70, "Too Long!").email().required("Required"),
@@ -21,7 +20,7 @@ interface registerProps {}
 
 const Register: NextPage<registerProps> = ({}) => {
     const router = useRouter();
-    const [, register] = useRegisterMutation();
+    const [register] = useRegisterMutation();
 
     return (
         <Layout variant="small" title="Register">
@@ -34,7 +33,19 @@ const Register: NextPage<registerProps> = ({}) => {
                 initialValues={{ email: "", password: "", name: "" }}
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setErrors }) => {
-                    const { data } = await register({ options: values });
+                    const { data } = await register({
+                        variables: { options: values },
+                        update: (cache, { data }) => {
+                            cache.writeQuery<MeQuery>({
+                                query: MeDocument,
+                                data: {
+                                    __typename: "Query",
+                                    me: data.register.user
+                                }
+                            });
+                        }
+                    });
+
                     if (data?.register.errors) {
                         setErrors(toErrorMap(data?.register.errors));
                     } else if (data?.register.user) {
@@ -61,4 +72,4 @@ const Register: NextPage<registerProps> = ({}) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(Register);
+export default withApollo({ ssr: false })(Register);

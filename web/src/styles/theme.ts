@@ -4,8 +4,8 @@ import { createBreakpoints } from "@chakra-ui/theme-tools";
 const fonts = { mono: `'Menlo', monospace` };
 const palette = {
     primary: {
-        200: "#719bff",
-        500: "#4379FB"
+        200: "#71a3ff",
+        500: "#2d71ed"
     }
 };
 

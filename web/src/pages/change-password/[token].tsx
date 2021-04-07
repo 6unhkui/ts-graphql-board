@@ -6,13 +6,13 @@ import { Form, Formik } from "formik";
 import { NextPage } from "next";
 import { toErrorMap } from "utils/toErrorMap";
 import * as Yup from "yup";
-import { useChangePasswordMutation } from "generated/graphql";
+import { MeDocument, MeQuery, useChangePasswordMutation } from "generated/graphql";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "utils/createUrqlClient";
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@chakra-ui/alert";
 import NextLink from "next/link";
+import { useApolloClient } from "@apollo/client";
+import { withApollo } from "utils/withApollo";
 
 const validationSchema = Yup.object().shape({
     newPassword: Yup.string().min(2, "Too Short!").max(70, "Too Long!").required("Required"),
@@ -25,8 +25,9 @@ const validationSchema = Yup.object().shape({
 
 const ChangePassword: NextPage = () => {
     const router = useRouter();
-    const [, changePassword] = useChangePasswordMutation();
+    const [changePassword] = useChangePasswordMutation();
     const [tokenError, setTokenError] = useState("");
+    const apolloClient = useApolloClient();
 
     return (
         <Layout variant="small" title="Change Password">
@@ -55,8 +56,19 @@ const ChangePassword: NextPage = () => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setErrors }) => {
                     const { data } = await changePassword({
-                        token: typeof router.query.token === "string" ? router.query.token : "",
-                        newPassword: values.newPassword
+                        variables: {
+                            token: typeof router.query.token === "string" ? router.query.token : "",
+                            newPassword: values.newPassword
+                        },
+                        update: (cache, { data }) => {
+                            cache.writeQuery<MeQuery>({
+                                query: MeDocument,
+                                data: {
+                                    __typename: "Query",
+                                    me: data.changePassword.user
+                                }
+                            });
+                        }
                     });
 
                     if (data?.changePassword.errors) {
@@ -97,4 +109,4 @@ const ChangePassword: NextPage = () => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(ChangePassword);
+export default withApollo({ ssr: false })(ChangePassword);

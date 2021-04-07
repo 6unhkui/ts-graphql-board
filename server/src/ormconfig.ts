@@ -7,7 +7,7 @@ export default {
     type: "postgres",
     url: process.env.DATABASE_URL,
     entities: [Base, Post, User, Reaction],
-    // migrations: [path.join(__dirname, "./migrations/*")],
+    migrations: [path.join(__dirname, "./migrations/*")],
     synchronize: true,
     logging: !__prood__
 } as ConnectionOptions;
