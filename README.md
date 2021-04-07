@@ -16,4 +16,4 @@
 
 - Typescript
 - React, Next.js
-- URQL
+- Apollo Client
