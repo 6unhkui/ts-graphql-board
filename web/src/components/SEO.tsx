@@ -1,27 +1,37 @@
-import Head from "next/head";
-
 import React from "react";
+import { NextSeo } from "next-seo";
+import { SITE_META } from "../constants";
+
+type image = {
+    url: string;
+    width: number;
+    height: number;
+};
 
 interface SEOProps {
     title?: string;
     description?: string;
-    siteTitle?: string;
+    image?: image;
 }
 
-const SEO: React.FC<SEOProps> = ({ title = "", description = "", siteTitle = "Board App" }) => {
+const defaultImage: image = {
+    url: SITE_META.image,
+    width: 500,
+    height: 300
+};
+
+const SEO: React.FC<SEOProps> = ({ title = "", description = "", image = defaultImage }) => {
     return (
-        <Head>
-            <title>{title ? `${title} | ${siteTitle}` : siteTitle}</title>
-            <meta name="description" content={description} />
-            <meta property="og:type" content="website" />
-            <meta property="og:title" content={title ? title : siteTitle} />
-            <meta property="og:description" content={description} />
-            <meta property="og:site_name" content={siteTitle} />
-            <meta property="twitter:card" content="summary" />
-            {/* <meta property="twitter:creator" content={config.social.twitter} /> */}
-            <meta property="twitter:title" content={title ? title : siteTitle} />
-            <meta property="twitter:description" content={description} />
-        </Head>
+        <NextSeo
+            title={title ? `${title} | ${SITE_META.title}` : SITE_META.title}
+            description={description ? description : SITE_META.description}
+            openGraph={{
+                url: SITE_META.url,
+                title: title ? title : SITE_META.title,
+                description,
+                images: [image]
+            }}
+        />
     );
 };
 

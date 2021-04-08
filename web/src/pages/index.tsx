@@ -10,6 +10,7 @@ import { isServer } from "utils/isServer";
 import PostItemSkeleton from "components/PostItemSkeleton";
 import { withApollo } from "utils/withApollo";
 import { useColorModeValue } from "@chakra-ui/color-mode";
+import { SITE_META } from "../constants";
 
 const DEFAULT_VARIABLES = {
     limit: 10
@@ -30,7 +31,7 @@ const Index: NextPage = () => {
         <Layout variant="regular">
             <Flex align="center" direction="column">
                 <Heading fontSize={["2.5rem", "4rem"]} color={titleTextColor}>
-                    Memo
+                    {SITE_META.title}
                 </Heading>
                 {meData?.me ? (
                     <NextLink href="create-post">

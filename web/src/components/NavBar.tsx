@@ -7,6 +7,7 @@ import { DarkModeSwitch } from "components/DarkModeSwitch";
 import { isServer } from "utils/isServer";
 import { useApolloClient } from "@apollo/client";
 import { useColorMode, useColorModeValue, useTheme } from "@chakra-ui/system";
+import { SITE_META } from "../constants";
 
 interface NavBarProps {}
 
@@ -17,7 +18,6 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
     const { data, loading } = useMeQuery({
         skip: isServer()
     });
-    const apolloClient = useApolloClient();
 
     let body = null;
     if (loading) {
@@ -38,12 +38,17 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
         // user is logged in
         body = (
             <>
-                <Box mr={4}>Hi, {data.me.name} 👋</Box>
+                <NextLink href="/myinfo">
+                    <Link mr={4}>Hi, {data.me.name} 👋</Link>
+                </NextLink>
                 <Button
                     variant="link"
                     onClick={async () => {
-                        await logout();
-                        await apolloClient.resetStore();
+                        await logout({
+                            update: cache => {
+                                cache.reset();
+                            }
+                        });
                     }}
                     isLoading={logoutFetching}
                 >
@@ -60,7 +65,7 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
                 <Box>
                     <NextLink href="/">
                         <Link fontWeight="bold" color={titleTextColor}>
-                            Memo
+                            {SITE_META.title}
                         </Link>
                     </NextLink>
                 </Box>
