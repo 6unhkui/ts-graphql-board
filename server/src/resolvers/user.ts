@@ -1,13 +1,14 @@
 import { validateRegister } from "./../utils/validate";
 import { User } from "./../entities/User";
-import { Resolver, Ctx, Arg, Mutation, Query } from "type-graphql";
+import { Resolver, Ctx, Arg, Mutation, Query, UseMiddleware } from "type-graphql";
 import { MyContext } from "../types";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX, WEB_URL } from "../constants";
-import { UserResponse, RegisterInput, FieldError, LoginInput } from "../dtos/user";
+import { UserResponse, RegisterInput, FieldError, LoginInput, UpdateProfileInput } from "../dtos/user";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
+import { isAuth } from "../utils/middleware/isAuth";
 
 @Resolver(User)
 export class UserResolver {
@@ -53,7 +54,7 @@ export class UserResolver {
 
     @Mutation(() => Boolean)
     async forgotPassword(@Arg("email") email: string, @Ctx() { redis }: MyContext): Promise<boolean> {
-        const user = await User.findOne({ where: { email } });
+        const user = await User.findOne({ where: { email, isDelete: 0 } });
         if (!user) {
             // 계정(이메일)이 DB에 없을 경우
             return true;
@@ -99,7 +100,7 @@ export class UserResolver {
             return undefined;
         }
 
-        const user = await User.findOne({ id: req.session.userId });
+        const user = await User.findOne({ id: req.session.userId, isDelete: 0 });
         return user;
     }
 
@@ -146,7 +147,7 @@ export class UserResolver {
 
     @Mutation(() => UserResponse)
     async login(@Arg("options") options: LoginInput, @Ctx() { req }: MyContext): Promise<UserResponse> {
-        const user = await User.findOne({ where: { email: options.email } });
+        const user = await User.findOne({ where: { email: options.email, isDelete: 0 } });
         if (!user) {
             return {
                 errors: [new FieldError("email", "that email dosen't exist")]
@@ -178,6 +179,48 @@ export class UserResolver {
                     return;
                 }
 
+                resolve(true);
+            })
+        );
+    }
+
+    @Mutation(() => UserResponse)
+    @UseMiddleware(isAuth)
+    async updateProfile(@Arg("options") options: UpdateProfileInput, @Ctx() { req }: MyContext): Promise<UserResponse | null> {
+        const user = await User.findOne({ id: req.session.userId, isDelete: 0 });
+        if (!user) {
+            return null;
+        }
+
+        const newUser = { ...options };
+        if (options.password && options.password?.length > 0) {
+            const hashedPassword = await argon2.hash(options.password);
+            newUser["password"] = hashedPassword;
+        } else {
+            delete newUser.password;
+        }
+
+        await User.update({ id: user.id }, newUser);
+
+        return {
+            user: Object.assign(user, newUser)
+        };
+    }
+
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async withdraw(@Ctx() { req, res }: MyContext): Promise<boolean> {
+        const user = await User.findOne({ id: req.session.userId, isDelete: 0 });
+        if (!user) {
+            return false;
+        }
+
+        user.delete();
+        await User.update({ id: user.id }, user);
+
+        return new Promise(resolve =>
+            req.session.destroy(() => {
+                res.clearCookie(COOKIE_NAME);
                 resolve(true);
             })
         );

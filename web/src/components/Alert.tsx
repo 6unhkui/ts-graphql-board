@@ -33,7 +33,7 @@ const Alert: React.FC<AlertProps> = ({ header, body, isOpen, onClose, onOk }) =>
                             Cancel
                         </Button>
                         <Button colorScheme="red" onClick={onOk} ml={3}>
-                            Delete
+                            OK
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>

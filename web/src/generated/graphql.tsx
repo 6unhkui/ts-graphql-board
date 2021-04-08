@@ -88,6 +88,8 @@ export type Mutation = {
     register: UserResponse;
     login: UserResponse;
     logout: Scalars["Boolean"];
+    updateProfile: UserResponse;
+    withdraw: Scalars["Boolean"];
     reaction: Scalars["Boolean"];
 };
 
@@ -122,6 +124,10 @@ export type MutationLoginArgs = {
     options: LoginInput;
 };
 
+export type MutationUpdateProfileArgs = {
+    options: UpdateProfileInput;
+};
+
 export type MutationReactionArgs = {
     value: Scalars["Int"];
     postId: Scalars["Int"];
@@ -153,6 +159,12 @@ export type RegisterInput = {
 export type LoginInput = {
     email: Scalars["String"];
     password: Scalars["String"];
+};
+
+export type UpdateProfileInput = {
+    email: Scalars["String"];
+    password?: Maybe<Scalars["String"]>;
+    name: Scalars["String"];
 };
 
 export type RegularErrorFragment = { __typename?: "FieldError" } & Pick<FieldError, "field" | "message">;
@@ -230,6 +242,18 @@ export type UpdatePostMutationVariables = Exact<{
 }>;
 
 export type UpdatePostMutation = { __typename?: "Mutation" } & { updatePost: { __typename?: "Post" } & RegularPostFragment };
+
+export type UpdateProfileMutationVariables = Exact<{
+    options: UpdateProfileInput;
+}>;
+
+export type UpdateProfileMutation = { __typename?: "Mutation" } & {
+    updateProfile: { __typename?: "UserResponse" } & RegularUserResponseFragment;
+};
+
+export type WithdrawMutationVariables = Exact<{ [key: string]: never }>;
+
+export type WithdrawMutation = { __typename?: "Mutation" } & Pick<Mutation, "withdraw">;
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -594,6 +618,72 @@ export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
 export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
+export const UpdateProfileDocument = gql`
+    mutation UpdateProfile($options: UpdateProfileInput!) {
+        updateProfile(options: $options) {
+            ...RegularUserResponse
+        }
+    }
+    ${RegularUserResponseFragmentDoc}
+`;
+export type UpdateProfileMutationFn = Apollo.MutationFunction<UpdateProfileMutation, UpdateProfileMutationVariables>;
+
+/**
+ * __useUpdateProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProfileMutation, { data, loading, error }] = useUpdateProfileMutation({
+ *   variables: {
+ *      options: // value for 'options'
+ *   },
+ * });
+ */
+export function useUpdateProfileMutation(
+    baseOptions?: Apollo.MutationHookOptions<UpdateProfileMutation, UpdateProfileMutationVariables>
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation<UpdateProfileMutation, UpdateProfileMutationVariables>(UpdateProfileDocument, options);
+}
+export type UpdateProfileMutationHookResult = ReturnType<typeof useUpdateProfileMutation>;
+export type UpdateProfileMutationResult = Apollo.MutationResult<UpdateProfileMutation>;
+export type UpdateProfileMutationOptions = Apollo.BaseMutationOptions<UpdateProfileMutation, UpdateProfileMutationVariables>;
+export const WithdrawDocument = gql`
+    mutation Withdraw {
+        withdraw
+    }
+`;
+export type WithdrawMutationFn = Apollo.MutationFunction<WithdrawMutation, WithdrawMutationVariables>;
+
+/**
+ * __useWithdrawMutation__
+ *
+ * To run a mutation, you first call `useWithdrawMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useWithdrawMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [withdrawMutation, { data, loading, error }] = useWithdrawMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWithdrawMutation(baseOptions?: Apollo.MutationHookOptions<WithdrawMutation, WithdrawMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation<WithdrawMutation, WithdrawMutationVariables>(WithdrawDocument, options);
+}
+export type WithdrawMutationHookResult = ReturnType<typeof useWithdrawMutation>;
+export type WithdrawMutationResult = Apollo.MutationResult<WithdrawMutation>;
+export type WithdrawMutationOptions = Apollo.BaseMutationOptions<WithdrawMutation, WithdrawMutationVariables>;
 export const MeDocument = gql`
     query Me {
         me {

@@ -43,7 +43,7 @@ export class PostResolver {
                    json_build_object('id', u.id, 'name', u."name" , 'email', u.email ) author,
                    ${selectReactionSubQuery}
             FROM post p
-            LEFT OUTER JOIN public.user u ON u.id = p."authorId" AND u."isDelete" = 0
+            LEFT OUTER JOIN public.user u ON u.id = p."authorId"
             WHERE p."isDelete" = 0 AND p.id <= (${fromCursorSubQuery})
             ORDER BY p.id DESC
             LIMIT ${realLimitPlusOne}
@@ -55,7 +55,7 @@ export class PostResolver {
 
     @Query(() => Post, { nullable: true })
     async post(@Arg("id", () => Int) id: number, @Ctx() { req }: MyContext): Promise<Post | undefined> {
-        const post = await Post.findOne({ where: { id, isDelete: 0 } });
+        const post = await Post.findOne({ id, isDelete: 0 });
 
         if (post && req.session.userId) {
             const reaction = await Reaction.findOne({ where: { user: { id: req.session.userId }, post: { id } } });
@@ -69,7 +69,7 @@ export class PostResolver {
     @Mutation(() => Post)
     @UseMiddleware(isAuth)
     async createPost(@Arg("input") input: PostInput, @Ctx() { req }: MyContext): Promise<Post | null> {
-        const user = await User.findOne({ id: req.session.userId });
+        const user = await User.findOne({ id: req.session.userId, isDelete: 0 });
         if (!user) {
             return null;
         }

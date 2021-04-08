@@ -13,7 +13,7 @@ interface EditDeletePostButtonsProps {
 
 const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({ id }) => {
     const router = useRouter();
-    const [deleteAlertIsOpen, setDeleteAlertIsOpen] = useState(false);
+    const [deleteAlertIsOpen, setDeleteAlertIsOpen] = useState<boolean>(false);
     const [deletePost] = useDeletePostMutation();
 
     return (

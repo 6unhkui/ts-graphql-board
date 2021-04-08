@@ -23,9 +23,9 @@ const Post: React.FC<PostProps> = ({}) => {
     return (
         <Layout variant="regular" title={data?.post?.title} description={data?.post?.contentSnippet}>
             {loading || !data?.post ? (
-                <Box w="100%" borderRadius="lg" overflow="hidden" p={6}>
-                    <Skeleton height="50px" />
-                    <Skeleton height="8px" mt={4} width="25%" />
+                <Box w="100%" p={6}>
+                    <Skeleton height="50px" mb={4} />
+                    <Skeleton height="8px" width="50%" m={"auto"} />
                     <Divider mt={4} mb={6} />
                     <SkeletonText noOfLines={15} spacing={6} />
                 </Box>

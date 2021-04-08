@@ -1,6 +1,7 @@
 {
-    "name": "with-chakra-ui-typescript",
+    "name": "ts-graphql-board-app",
     "version": "1.0.0",
+    "description": "",
     "scripts": {
         "dev": "next",
         "build": "next build",
@@ -21,6 +22,7 @@
         "moment": "^2.29.1",
         "next": "latest",
         "next-apollo": "^5.0.4",
+        "next-seo": "^4.23.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-is": "^17.0.2",

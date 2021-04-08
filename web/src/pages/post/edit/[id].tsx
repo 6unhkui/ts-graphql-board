@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/button";
 import { Box, Heading } from "@chakra-ui/layout";
+import { Skeleton, SkeletonText } from "@chakra-ui/skeleton";
 import InputField from "components/InputField";
 import Layout from "components/Layout";
 import { Form, Formik } from "formik";
@@ -32,11 +33,27 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
                     Edit Post
                 </Heading>
             </Box>
-            {loading ? null : (
+            {loading || !data?.post ? (
+                <Box>
+                    <Box mb={6}>
+                        <Skeleton height="14px" width="25%" />
+                        <Box padding={3} border="1px" mt={2} borderRadius="md" borderColor="gray.200">
+                            <Skeleton height="20px" />
+                        </Box>
+                    </Box>
+
+                    <Box>
+                        <Skeleton height="14px" width="25%" />
+                        <Box padding={3} border="1px" mt={2} borderRadius="md" borderColor="gray.200">
+                            <SkeletonText noOfLines={8} spacing={4} skeletonHeight="20px" />
+                        </Box>
+                    </Box>
+                </Box>
+            ) : (
                 <Formik
                     initialValues={{
-                        title: data?.post?.title ? data?.post?.title : "",
-                        content: data?.post?.content ? data?.post?.content : ""
+                        title: data?.post?.title || "",
+                        content: data?.post?.content || ""
                     }}
                     validationSchema={validationSchema}
                     onSubmit={async values => {
@@ -57,7 +74,7 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
                             </Box>
 
                             <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
-                                Create Post
+                                Save
                             </Button>
                         </Form>
                     )}

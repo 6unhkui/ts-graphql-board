@@ -22,6 +22,18 @@ export class LoginInput {
     password: string;
 }
 
+@InputType()
+export class UpdateProfileInput {
+    @Field()
+    email: string;
+
+    @Field({ nullable: true })
+    password?: string;
+
+    @Field()
+    name: string;
+}
+
 @ObjectType()
 export class FieldError {
     @Field()
