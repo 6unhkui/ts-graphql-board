@@ -5,15 +5,7 @@
 ## 🔧 Tech Stack
 
 ### Server
-
-- Typescript
-- Node.js, Express
-- GraphQL, Apollo Server
-- TypeORM
-- Postgresql, Redis
+Typescript, Node.js, Express, GraphQL, Apollo Server, TypeORM, Postgresql, Redis
 
 ### Web
-
-- Typescript
-- React, Next.js
-- Apollo Client
+Typescript, React, Next.js, Apollo Client
