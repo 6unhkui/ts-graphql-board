@@ -1,4 +1,5 @@
-import { RegisterInput, FieldError } from "../dtos/user";
+import { RegisterInput } from "../dtos/user";
+import { FieldError } from "../dtos/error";
 
 export const validateRegister = (options: RegisterInput): FieldError[] | null => {
     if (options.email.length <= 2) {

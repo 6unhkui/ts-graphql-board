@@ -8,9 +8,12 @@ import React, { useState } from "react";
 import { withApollo } from "utils/withApollo";
 import * as Yup from "yup";
 import NextLink from "next/link";
+import ko from "yup-locale-ko";
+
+Yup.setLocale(ko);
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string().email().required("Required")
+    email: Yup.string().email().required()
 });
 
 interface ForgotPasswordProps {}
@@ -23,7 +26,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
         <Layout variant="small" title="Forgot Password">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
-                    Forgot Password
+                    비밀번호 찾기
                 </Heading>
             </Box>
             <Formik
@@ -37,7 +40,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                 {({ isSubmitting }) =>
                     complete ? (
                         <Box textAlign="center">
-                            만약 존재하는 계정이라면, 메일이 정상적으로 전송되었습니다.
+                            존재하는 계정이라면, 입력한 메일 주소로 메일이 정상적으로 전송되었습니다.
                             <Center mt={4}>
                                 <NextLink href="/">
                                     <Button>메인으로 가기</Button>
@@ -46,10 +49,10 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                         </Box>
                     ) : (
                         <Form>
-                            <InputField name="email" label="Email" placeholder="이메일을 입력하세요." />
+                            <InputField name="email" label="이메일" placeholder="이메일을 입력하세요." />
 
                             <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
-                                Forgot Password
+                                비밀번호 찾기
                             </Button>
                         </Form>
                     )

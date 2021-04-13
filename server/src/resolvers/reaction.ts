@@ -1,7 +1,7 @@
 import { Reaction } from "./../entities/Reaction";
 import { isAuth } from "./../utils/middleware/isAuth";
 import { Query, Resolver, Ctx, Arg, Int, Mutation, UseMiddleware, FieldResolver, Root } from "type-graphql";
-import { MyContext } from "../types";
+import { MyContext } from "../types/MyContext";
 import { getConnection, Transaction } from "typeorm";
 import { Post, User } from "src/entities";
 

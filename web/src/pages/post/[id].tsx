@@ -1,8 +1,8 @@
+import React from "react";
 import { Box, Center, Divider, Flex, Heading } from "@chakra-ui/layout";
 import { Skeleton, SkeletonText } from "@chakra-ui/skeleton";
 import Layout from "components/Layout";
 import { RegularPostFragment, usePostQuery, useMeQuery } from "generated/graphql";
-import React from "react";
 import moment from "moment";
 import { Button } from "@chakra-ui/button";
 import EditDeletePostButtons from "components/EditDeletePostButtons";
@@ -12,6 +12,7 @@ import ReactionSection from "components/ReactionSection";
 import { isServer } from "utils/isServer";
 import { useGetIntIdFromUrl } from "hooks/useGetIntIdFromUrl";
 import { withApollo } from "utils/withApollo";
+import { Image } from "@chakra-ui/image";
 
 interface PostProps {}
 
@@ -34,6 +35,7 @@ const Post: React.FC<PostProps> = ({}) => {
                     <Heading fontSize={"3rem"} textAlign={"center"}>
                         {data?.post?.title}
                     </Heading>
+
                     <Box mt={4} color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm">
                         <Center>
                             <Box>{"💛 written by. ".toUpperCase() + data?.post?.author?.name}</Box>
@@ -48,6 +50,10 @@ const Post: React.FC<PostProps> = ({}) => {
 
                     <Divider mt={4} mb={6} />
 
+                    {data?.post?.images?.map((image, i) => (
+                        <Image key={i} src={image.url} alt="image" mb={2} loading="eager" />
+                    ))}
+
                     <Box minHeight={"30vh"} mb={4}>
                         {data?.post?.content}
                     </Box>
@@ -59,7 +65,7 @@ const Post: React.FC<PostProps> = ({}) => {
                     <Flex>
                         <NextLink href="/">
                             <Button leftIcon={<HamburgerIcon />} variant="solid" size="sm">
-                                List
+                                리스트
                             </Button>
                         </NextLink>
 

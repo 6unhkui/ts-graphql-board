@@ -10,4 +10,7 @@ fragment RegularPost on Post {
     author {
         ...RegularUser
     }
+    images {
+        url
+    }
 }

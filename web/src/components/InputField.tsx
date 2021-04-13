@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, InputHTMLAttributes } from "react";
+import React, { InputHTMLAttributes } from "react";
 import { FormControl, FormLabel, FormErrorMessage, Input, Textarea, ComponentWithAs } from "@chakra-ui/react";
 import { useField } from "formik";
 

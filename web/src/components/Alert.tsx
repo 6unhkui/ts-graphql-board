@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "@chakra-ui/button";
 import {
     AlertDialog,
@@ -7,7 +8,6 @@ import {
     AlertDialogHeader,
     AlertDialogOverlay
 } from "@chakra-ui/modal";
-import React from "react";
 
 interface AlertProps {
     header: string;
@@ -30,10 +30,10 @@ const Alert: React.FC<AlertProps> = ({ header, body, isOpen, onClose, onOk }) =>
 
                     <AlertDialogFooter>
                         <Button onClick={onClose} variant="outline">
-                            Cancel
+                            취소
                         </Button>
                         <Button colorScheme="red" onClick={onOk} ml={3}>
-                            OK
+                            확인
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>

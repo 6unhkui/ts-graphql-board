@@ -1,9 +1,9 @@
+import React from "react";
 import { ApolloCache } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Center } from "@chakra-ui/layout";
 import { ReactionMutation, RegularPostFragment, useReactionMutation } from "generated/graphql";
 import gql from "graphql-tag";
-import React, { useState } from "react";
 
 interface ReactionSectionProps {
     post: RegularPostFragment;
@@ -88,7 +88,7 @@ const ReactionSection: React.FC<ReactionSectionProps> = ({ post, disabled }) => 
                 }}
                 loading={loading}
             >
-                😍 Like {post?.likes}
+                😍 좋아요 {post?.likes}
             </Button>
             <Button
                 disabled={disabled}
@@ -102,7 +102,7 @@ const ReactionSection: React.FC<ReactionSectionProps> = ({ post, disabled }) => 
                 }}
                 loading={loading}
             >
-                👿 Dislike {post?.dislikes}
+                👿 싫어요 {post?.dislikes}
             </Button>
         </Center>
     );

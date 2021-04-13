@@ -12,6 +12,8 @@ export type Scalars = {
     Boolean: boolean;
     Int: number;
     Float: number;
+    /** The `Upload` scalar type represents a file upload. */
+    Upload: any;
 };
 
 export type Query = {
@@ -49,7 +51,7 @@ export type Post = {
     likes: Scalars["Float"];
     dislikes: Scalars["Float"];
     author?: Maybe<User>;
-    reactions?: Maybe<Reaction>;
+    images?: Maybe<Array<Image>>;
     contentSnippet: Scalars["String"];
 };
 
@@ -78,6 +80,17 @@ export type Reaction = {
     post: Post;
 };
 
+export type Image = {
+    __typename?: "Image";
+    createdAt: Scalars["String"];
+    updatedAt: Scalars["String"];
+    deletedAt?: Maybe<Scalars["String"]>;
+    isDelete: Scalars["Boolean"];
+    id: Scalars["Float"];
+    url: Scalars["String"];
+    post: Post;
+};
+
 export type Mutation = {
     __typename?: "Mutation";
     createPost: Post;
@@ -91,6 +104,7 @@ export type Mutation = {
     updateProfile: UserResponse;
     withdraw: Scalars["Boolean"];
     reaction: Scalars["Boolean"];
+    uploadImage: Scalars["String"];
 };
 
 export type MutationCreatePostArgs = {
@@ -98,9 +112,7 @@ export type MutationCreatePostArgs = {
 };
 
 export type MutationUpdatePostArgs = {
-    content?: Maybe<Scalars["String"]>;
-    title?: Maybe<Scalars["String"]>;
-    id: Scalars["Int"];
+    input: UpdatePostInput;
 };
 
 export type MutationDeletePostArgs = {
@@ -133,9 +145,22 @@ export type MutationReactionArgs = {
     postId: Scalars["Int"];
 };
 
+export type MutationUploadImageArgs = {
+    image: Scalars["Upload"];
+};
+
 export type PostInput = {
     title: Scalars["String"];
     content: Scalars["String"];
+    images?: Maybe<Array<Scalars["String"]>>;
+};
+
+export type UpdatePostInput = {
+    id: Scalars["Int"];
+    title: Scalars["String"];
+    content: Scalars["String"];
+    images?: Maybe<Array<Scalars["String"]>>;
+    deleteImages?: Maybe<Array<Scalars["String"]>>;
 };
 
 export type UserResponse = {
@@ -172,7 +197,10 @@ export type RegularErrorFragment = { __typename?: "FieldError" } & Pick<FieldErr
 export type RegularPostFragment = { __typename?: "Post" } & Pick<
     Post,
     "id" | "title" | "content" | "contentSnippet" | "likes" | "dislikes" | "createdAt" | "reactionStatus"
-> & { author?: Maybe<{ __typename?: "User" } & RegularUserFragment> };
+> & {
+        author?: Maybe<{ __typename?: "User" } & RegularUserFragment>;
+        images?: Maybe<Array<{ __typename?: "Image" } & Pick<Image, "url">>>;
+    };
 
 export type RegularUserResponseFragment = { __typename?: "UserResponse" } & {
     errors?: Maybe<Array<{ __typename?: "FieldError" } & RegularErrorFragment>>;
@@ -236,9 +264,7 @@ export type RegisterMutation = { __typename?: "Mutation" } & {
 };
 
 export type UpdatePostMutationVariables = Exact<{
-    id: Scalars["Int"];
-    title: Scalars["String"];
-    content: Scalars["String"];
+    input: UpdatePostInput;
 }>;
 
 export type UpdatePostMutation = { __typename?: "Mutation" } & { updatePost: { __typename?: "Post" } & RegularPostFragment };
@@ -250,6 +276,12 @@ export type UpdateProfileMutationVariables = Exact<{
 export type UpdateProfileMutation = { __typename?: "Mutation" } & {
     updateProfile: { __typename?: "UserResponse" } & RegularUserResponseFragment;
 };
+
+export type UploadImageMutationVariables = Exact<{
+    image: Scalars["Upload"];
+}>;
+
+export type UploadImageMutation = { __typename?: "Mutation" } & Pick<Mutation, "uploadImage">;
 
 export type WithdrawMutationVariables = Exact<{ [key: string]: never }>;
 
@@ -295,6 +327,9 @@ export const RegularPostFragmentDoc = gql`
         reactionStatus
         author {
             ...RegularUser
+        }
+        images {
+            url
         }
     }
     ${RegularUserFragmentDoc}
@@ -583,8 +618,8 @@ export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
 export const UpdatePostDocument = gql`
-    mutation UpdatePost($id: Int!, $title: String!, $content: String!) {
-        updatePost(id: $id, title: $title, content: $content) {
+    mutation UpdatePost($input: UpdatePostInput!) {
+        updatePost(input: $input) {
             ...RegularPost
         }
     }
@@ -605,9 +640,7 @@ export type UpdatePostMutationFn = Apollo.MutationFunction<UpdatePostMutation, U
  * @example
  * const [updatePostMutation, { data, loading, error }] = useUpdatePostMutation({
  *   variables: {
- *      id: // value for 'id'
- *      title: // value for 'title'
- *      content: // value for 'content'
+ *      input: // value for 'input'
  *   },
  * });
  */
@@ -654,6 +687,39 @@ export function useUpdateProfileMutation(
 export type UpdateProfileMutationHookResult = ReturnType<typeof useUpdateProfileMutation>;
 export type UpdateProfileMutationResult = Apollo.MutationResult<UpdateProfileMutation>;
 export type UpdateProfileMutationOptions = Apollo.BaseMutationOptions<UpdateProfileMutation, UpdateProfileMutationVariables>;
+export const UploadImageDocument = gql`
+    mutation UploadImage($image: Upload!) {
+        uploadImage(image: $image)
+    }
+`;
+export type UploadImageMutationFn = Apollo.MutationFunction<UploadImageMutation, UploadImageMutationVariables>;
+
+/**
+ * __useUploadImageMutation__
+ *
+ * To run a mutation, you first call `useUploadImageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUploadImageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [uploadImageMutation, { data, loading, error }] = useUploadImageMutation({
+ *   variables: {
+ *      image: // value for 'image'
+ *   },
+ * });
+ */
+export function useUploadImageMutation(
+    baseOptions?: Apollo.MutationHookOptions<UploadImageMutation, UploadImageMutationVariables>
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation<UploadImageMutation, UploadImageMutationVariables>(UploadImageDocument, options);
+}
+export type UploadImageMutationHookResult = ReturnType<typeof useUploadImageMutation>;
+export type UploadImageMutationResult = Apollo.MutationResult<UploadImageMutation>;
+export type UploadImageMutationOptions = Apollo.BaseMutationOptions<UploadImageMutation, UploadImageMutationVariables>;
 export const WithdrawDocument = gql`
     mutation Withdraw {
         withdraw

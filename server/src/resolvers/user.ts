@@ -1,10 +1,11 @@
 import { validateRegister } from "./../utils/validate";
 import { User } from "./../entities/User";
 import { Resolver, Ctx, Arg, Mutation, Query, UseMiddleware } from "type-graphql";
-import { MyContext } from "../types";
+import { MyContext } from "../types/MyContext";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX, WEB_URL } from "../constants";
-import { UserResponse, RegisterInput, FieldError, LoginInput, UpdateProfileInput } from "../dtos/user";
+import { UserResponse, RegisterInput, LoginInput, UpdateProfileInput } from "../dtos/user";
+import { FieldError } from "../dtos/error";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";

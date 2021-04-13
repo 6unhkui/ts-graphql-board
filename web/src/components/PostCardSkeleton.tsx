@@ -1,10 +1,10 @@
+import React from "react";
 import { Box } from "@chakra-ui/layout";
 import { Skeleton, SkeletonText } from "@chakra-ui/skeleton";
-import React from "react";
 
-interface PostItemSkeletonProps {}
+interface PostCardSkeletonProps {}
 
-const PostItemSkeleton: React.FC<PostItemSkeletonProps> = ({}) => {
+const PostCardSkeleton: React.FC<PostCardSkeletonProps> = ({}) => {
     return (
         <Box w="100%" borderWidth="1px" borderRadius="lg" overflow="hidden" p={6}>
             <Skeleton height="20px" />
@@ -14,4 +14,4 @@ const PostItemSkeleton: React.FC<PostItemSkeletonProps> = ({}) => {
     );
 };
 
-export default PostItemSkeleton;
+export default PostCardSkeleton;

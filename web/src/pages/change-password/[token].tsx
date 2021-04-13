@@ -11,14 +11,16 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@chakra-ui/alert";
 import NextLink from "next/link";
-import { useApolloClient } from "@apollo/client";
 import { withApollo } from "utils/withApollo";
+import ko from "yup-locale-ko";
+
+Yup.setLocale(ko);
 
 const validationSchema = Yup.object().shape({
-    newPassword: Yup.string().min(2, "Too Short!").max(70, "Too Long!").required("Required"),
+    newPassword: Yup.string().min(2).max(70).required(),
     confirmNewPassword: Yup.string()
-        .required("Required")
-        .test("passwords-match", "Passwords must match", function (value) {
+        .required()
+        .test("passwords-match", "비밀번호가 일치하지 않습니다.", function (value) {
             return this.parent.newPassword === value;
         })
 });
@@ -27,13 +29,12 @@ const ChangePassword: NextPage = () => {
     const router = useRouter();
     const [changePassword] = useChangePasswordMutation();
     const [tokenError, setTokenError] = useState("");
-    const apolloClient = useApolloClient();
 
     return (
         <Layout variant="small" title="Change Password">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
-                    Change Password
+                    비밀번호 변경
                 </Heading>
             </Box>
 
@@ -85,16 +86,11 @@ const ChangePassword: NextPage = () => {
             >
                 {({ isSubmitting }) => (
                     <Form>
-                        <InputField
-                            name="newPassword"
-                            label="New Password"
-                            placeholder="비밀번호를 입력하세요."
-                            type="password"
-                        />
+                        <InputField name="newPassword" label="새 비밀번호" placeholder="비밀번호를 입력하세요." type="password" />
                         <Box mt={4}>
                             <InputField
                                 name="confirmNewPassword"
-                                label="Confirm New Password"
+                                label="새 비밀번호 확인"
                                 placeholder="비밀번호를 다시 한 번 입력하세요."
                                 type="password"
                             />

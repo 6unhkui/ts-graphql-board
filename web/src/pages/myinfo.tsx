@@ -1,37 +1,31 @@
+import React, { useState } from "react";
 import { Button } from "@chakra-ui/button";
-import { Box, Center, Divider, Flex, Heading, Link } from "@chakra-ui/layout";
-import { Table, TableCaption, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
+import { Box, Center, Heading, Link } from "@chakra-ui/layout";
 import InputField from "components/InputField";
 import Layout from "components/Layout";
 import { Form, Formik } from "formik";
-import {
-    MeDocument,
-    MeQuery,
-    RegularUserFragment,
-    useMeQuery,
-    useUpdateProfileMutation,
-    useWithdrawMutation
-} from "generated/graphql";
-import React, { useState } from "react";
+import { MeDocument, MeQuery, useMeQuery, useUpdateProfileMutation, useWithdrawMutation } from "generated/graphql";
 import { isServer } from "utils/isServer";
 import { withApollo } from "utils/withApollo";
 import * as Yup from "yup";
-import NextLink from "next/link";
-import { Skeleton, SkeletonText } from "@chakra-ui/skeleton";
+import { Skeleton } from "@chakra-ui/skeleton";
 import { toErrorMap } from "utils/toErrorMap";
 import { useRouter } from "next/router";
 import WithdrawAlert from "components/Alert";
 import { useIsAuth } from "hooks/useIsAuth";
+import ko from "yup-locale-ko";
+
+Yup.setLocale(ko);
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string().min(2, "Too Short!").max(70, "Too Long!").email().required("Required"),
-    name: Yup.string().min(2, "Too Short!").max(70, "Too Long!").required("Required"),
-    password: Yup.string().min(2, "Too Short!").max(70, "Too Long!"),
-    confirmPassword: Yup.string().when("password", {
+    email: Yup.string().min(2).max(70).email().required(),
+    name: Yup.string().min(2).max(70).required(),
+    password: Yup.string().min(2).max(70),
+    confirmNewPassword: Yup.string().when("password", {
         is: (val: string) => (val && val.length > 0 ? true : false),
         then: Yup.string()
-            .oneOf([Yup.ref("password")], "Both password need to be the same")
-            .required("Requirede")
+            .oneOf([Yup.ref("password")], "비밀번호가 일치하지 않습니다.")
+            .required()
     })
 });
 
@@ -53,7 +47,7 @@ const myinfo: React.FC<myinfoProps> = ({}) => {
         <Layout variant="small" title="My Info">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
-                    My Info
+                    내 정보
                 </Heading>
             </Box>
 
@@ -68,10 +62,10 @@ const myinfo: React.FC<myinfoProps> = ({}) => {
                 ))
             ) : (
                 <Formik
-                    initialValues={{ email: data?.me.email, name: data?.me.name, password: "", confirmPassword: "" }}
+                    initialValues={{ email: data?.me.email, name: data?.me.name, password: "", confirmNewPassword: "" }}
                     validationSchema={validationSchema}
                     onSubmit={async (values, { setErrors }) => {
-                        delete values.confirmPassword;
+                        delete values.confirmNewPassword;
                         if (values.password.trim().length === 0) {
                             delete values.password;
                         }
@@ -98,28 +92,28 @@ const myinfo: React.FC<myinfoProps> = ({}) => {
                 >
                     {({ isSubmitting }) => (
                         <Form>
-                            <InputField name="email" label="Email" placeholder="계정을 입력하세요." />
+                            <InputField name="email" label="이메일" placeholder="계정을 입력하세요." />
                             <Box mt={4}>
-                                <InputField name="name" label="Name" placeholder="이름을 입력하세요." />
+                                <InputField name="name" label="이름" placeholder="이름을 입력하세요." />
                             </Box>
                             <Box mt={4}>
                                 <InputField
                                     name="password"
-                                    label="New Password"
+                                    label="새 비밀번호"
                                     type="password"
                                     placeholder="비밀번호를 입력하세요."
                                 />
                             </Box>
                             <Box mt={4}>
                                 <InputField
-                                    name="confirmPassword"
-                                    label="Confirm New Password"
+                                    name="confirmNewPassword"
+                                    label="새 비밀번호 확인"
                                     type="password"
-                                    placeholder="비밀번호를 입력하세요."
+                                    placeholder="비밀번호를 다시 한 번 입력하세요."
                                 />
                             </Box>
                             <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
-                                Save
+                                저장
                             </Button>
                         </Form>
                     )}
@@ -127,7 +121,7 @@ const myinfo: React.FC<myinfoProps> = ({}) => {
             )}
 
             <WithdrawAlert
-                header="Withdraw"
+                header="탈퇴"
                 body="탈퇴를 하면 돌이킬 수 없습니다. 정말 탈퇴하시겠습니까?"
                 isOpen={withdrawAlertIsOpen}
                 onClose={() => setWithdrawAlertIsOpen(false)}

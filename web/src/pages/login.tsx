@@ -10,28 +10,33 @@ import Layout from "components/Layout";
 import { NextPage } from "next";
 import NextLink from "next/link";
 import { withApollo } from "utils/withApollo";
+import ko from "yup-locale-ko";
+
+Yup.setLocale(ko);
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string().email().required("Required"),
-    password: Yup.string().required("Required")
+    email: Yup.string().email().required(),
+    password: Yup.string().required()
 });
 
 interface loginProps {}
 
 const Login: NextPage<loginProps> = ({}) => {
     const router = useRouter();
-    const [login, { client }] = useLoginMutation();
+    const [login] = useLoginMutation();
 
     return (
         <Layout variant="small" title="Login">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
-                    Login
+                    로그인
                 </Heading>
             </Box>
             <Formik
                 initialValues={{ email: "", password: "" }}
                 validationSchema={validationSchema}
+                validateOnChange={false}
+                validateOnBlur={false}
                 onSubmit={async (values, { setErrors }) => {
                     const { data } = await login({
                         variables: { options: values },
@@ -61,19 +66,19 @@ const Login: NextPage<loginProps> = ({}) => {
             >
                 {({ isSubmitting }) => (
                     <Form>
-                        <InputField name="email" label="Email" placeholder="이메일을 입력하세요." />
+                        <InputField name="email" label="이메일" placeholder="이메일을 입력하세요." />
                         <Box mt={4}>
-                            <InputField name="password" label="Password" type="password" placeholder="비밀번호를 입력하세요." />
+                            <InputField name="password" label="비밀번호" type="password" placeholder="비밀번호를 입력하세요." />
                         </Box>
                         <Flex mt={4}>
                             <NextLink href="/forgot-password">
                                 <Link ml="auto" color="gray.5 0 0">
-                                    forgot password?
+                                    비밀번호를 잊으셨나요?
                                 </Link>
                             </NextLink>
                         </Flex>
                         <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
-                            Login
+                            로그인
                         </Button>
                     </Form>
                 )}

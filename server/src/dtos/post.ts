@@ -1,5 +1,5 @@
 import { Post } from "./../entities/Post";
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, InputType, Int, ObjectType } from "type-graphql";
 
 @InputType()
 export class PostInput {
@@ -8,6 +8,27 @@ export class PostInput {
 
     @Field()
     content: string;
+
+    @Field(() => [String], { nullable: true })
+    images?: string[];
+}
+
+@InputType()
+export class UpdatePostInput {
+    @Field(() => Int)
+    id: number;
+
+    @Field()
+    title: string;
+
+    @Field()
+    content: string;
+
+    @Field(() => [String], { nullable: true })
+    images?: string[];
+
+    @Field(() => [String], { nullable: true })
+    deleteImages?: string[];
 }
 
 @ObjectType()

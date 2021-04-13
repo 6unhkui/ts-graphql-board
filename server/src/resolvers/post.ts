@@ -1,10 +1,10 @@
 import { isAuth } from "./../utils/middleware/isAuth";
-import { User, Reaction } from "./../entities";
+import { User, Reaction, Image } from "./../entities";
 import { Query, Resolver, Ctx, Arg, Int, Mutation, UseMiddleware, FieldResolver, Root } from "type-graphql";
 import { Post } from "../entities/Post";
-import { MyContext } from "../types";
-import { PaginatedPosts, PostInput } from "../dtos/post";
-import { getConnection } from "typeorm";
+import { MyContext } from "../types/MyContext";
+import { PaginatedPosts, PostInput, UpdatePostInput } from "../dtos/post";
+import { getRepository } from "typeorm";
 
 @Resolver(Post)
 export class PostResolver {
@@ -16,19 +16,18 @@ export class PostResolver {
     @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
-        @Arg("cursor", () => Int, { nullable: true }) cursor: number | null,
-        @Ctx() { req }: MyContext
+        @Arg("cursor", () => Int, { nullable: true }) cursor: number | null
     ): Promise<PaginatedPosts> {
         // limit 갯수보다 1개 더 조회해서 그 개수가 조회한 데이터 개수보다 크면
         // => hasMore : true
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
 
-        const selectReactionSubQuery = req.session.userId
-            ? `(SELECT value FROM reaction WHERE "userId" = ${req.session.userId} AND "postId" = p.id) "reactionStatus"`
-            : 'null as "reactionStatus"';
+        // const selectReactionSubQuery = req.session.userId
+        //     ? `(SELECT value FROM reaction WHERE "userId" = ${req.session.userId} AND "postId" = post.id) "reactionStatus"`
+        //     : 'null as "reactionStatus"';
 
-        const fromCursorSubQuery = cursor
+        const cursorSubQuery = cursor
             ? cursor - 1
             : `
             SELECT id
@@ -37,25 +36,34 @@ export class PostResolver {
             LIMIT 1
         `;
 
-        const posts = await getConnection().query(
-            `
-            SELECT p.*,
-                   json_build_object('id', u.id, 'name', u."name" , 'email', u.email ) author,
-                   ${selectReactionSubQuery}
-            FROM post p
-            LEFT OUTER JOIN public.user u ON u.id = p."authorId"
-            WHERE p."isDelete" = 0 AND p.id <= (${fromCursorSubQuery})
-            ORDER BY p.id DESC
+        const postLimitSubQuery = `
+            SELECT id
+            FROM post
+            WHERE post."isDelete" = 0 AND post.id <= (${cursorSubQuery})
+            ORDER BY id desc 
             LIMIT ${realLimitPlusOne}
-            `
-        );
+        `;
 
-        return { posts: posts.slice(0, realLimit), hasMore: posts.length === realLimitPlusOne };
+        const posts = await getRepository(Post)
+            .createQueryBuilder("post")
+            .leftJoinAndSelect("post.author", "author", "author.isDelete = 0")
+            .leftJoinAndSelect("post.images", "images", "images.isDelete = 0")
+            .where(`post.id IN (${postLimitSubQuery})`)
+            .orderBy("post.id", "DESC")
+            .addOrderBy("images.id", "ASC")
+            .getMany();
+
+        return { posts: posts.slice(0, realLimit) as Post[], hasMore: posts.length === realLimitPlusOne };
     }
 
     @Query(() => Post, { nullable: true })
     async post(@Arg("id", () => Int) id: number, @Ctx() { req }: MyContext): Promise<Post | undefined> {
-        const post = await Post.findOne({ id, isDelete: 0 });
+        const post = await getRepository(Post)
+            .createQueryBuilder("post")
+            .leftJoinAndSelect("post.author", "author", "author.isDelete = 0")
+            .leftJoinAndSelect("post.images", "images", "images.isDelete = 0")
+            .where("post.isDelete = 0 AND post.id = :id", { id })
+            .getOne();
 
         if (post && req.session.userId) {
             const reaction = await Reaction.findOne({ where: { user: { id: req.session.userId }, post: { id } } });
@@ -74,18 +82,19 @@ export class PostResolver {
             return null;
         }
 
-        return await Post.create({ ...input, author: user }).save();
+        const post = await Post.create({ title: input.title, content: input.title, author: user }).save();
+        if (input.images) {
+            const images = await Promise.all(input.images.map(image => Image.create({ url: image, post }).save()));
+            post.addImages(images);
+        }
+
+        return post;
     }
 
     @Mutation(() => Post)
     @UseMiddleware(isAuth)
-    async updatePost(
-        @Arg("id", () => Int) id: number,
-        @Arg("title", { nullable: true }) title: string,
-        @Arg("content", { nullable: true }) content: string,
-        @Ctx() { req }: MyContext
-    ): Promise<Post | null> {
-        const post = await Post.findOne(id);
+    async updatePost(@Arg("input") input: UpdatePostInput, @Ctx() { req }: MyContext): Promise<Post | null> {
+        const post = await Post.findOne(input.id);
         if (!post) {
             return null;
         }
@@ -94,8 +103,23 @@ export class PostResolver {
             throw new Error("not authenticated");
         }
 
-        if (typeof title !== "undefined") {
-            await Post.update({ id }, { title, content });
+        if (typeof input.title !== "undefined") {
+            await Post.update({ id: input.id }, { title: input.title, content: input.content });
+        }
+
+        // 새로 등록한 이미지
+        if (input.images) {
+            const images = await Promise.all(input.images.map(image => Image.create({ url: image, post }).save()));
+            post.addImages(images);
+        }
+
+        // 삭제한 이미지
+        if (input.deleteImages) {
+            await Promise.all(
+                input.deleteImages.map(image => {
+                    Image.update({ url: image }, { isDelete: 1 });
+                })
+            );
         }
 
         return post;
@@ -116,7 +140,7 @@ export class PostResolver {
         post.delete();
         await Post.update({ id }, post);
 
-        // Reaction 테이블도 삭제함
+        // Reaction 테이블에서도 삭제함
         await Reaction.delete({ post: { id } });
 
         return true;

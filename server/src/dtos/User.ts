@@ -1,5 +1,6 @@
 import { User } from "./../entities/User";
 import { InputType, Field, ObjectType } from "type-graphql";
+import { FieldError } from "./error";
 
 @InputType()
 export class RegisterInput {
@@ -32,20 +33,6 @@ export class UpdateProfileInput {
 
     @Field()
     name: string;
-}
-
-@ObjectType()
-export class FieldError {
-    @Field()
-    field: string;
-
-    @Field()
-    message: string;
-
-    constructor(field: string, message: string) {
-        this.field = field;
-        this.message = message;
-    }
 }
 
 @ObjectType()

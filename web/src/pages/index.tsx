@@ -1,23 +1,20 @@
-import { Box, Center, Divider, Flex, Grid, Heading } from "@chakra-ui/layout";
+import { Box, Center, Grid } from "@chakra-ui/layout";
 import Layout from "components/Layout";
 import { useMeQuery, usePostsQuery } from "generated/graphql";
 import { NextPage } from "next";
 import { Button } from "@chakra-ui/button";
-import moment from "moment";
 import { useState } from "react";
-import NextLink from "next/link";
 import { isServer } from "utils/isServer";
-import PostItemSkeleton from "components/PostItemSkeleton";
+import PostCardSkeleton from "components/PostCardSkeleton";
 import { withApollo } from "utils/withApollo";
-import { useColorModeValue } from "@chakra-ui/color-mode";
-import { SITE_META } from "../constants";
+import PostCard from "components/PostCard";
+import CreatePostButton from "components/CreatePostButton";
 
 const DEFAULT_VARIABLES = {
     limit: 10
 };
 
 const Index: NextPage = () => {
-    const titleTextColor = useColorModeValue("primary.500", "white");
     const [variables, setVariables] = useState(DEFAULT_VARIABLES);
     const { data: meData } = useMeQuery({ skip: isServer() });
     const { data, loading, fetchMore } = usePostsQuery({
@@ -29,51 +26,21 @@ const Index: NextPage = () => {
 
     return (
         <Layout variant="regular">
-            <Flex align="center" direction="column">
-                <Heading fontSize={["2.5rem", "4rem"]} color={titleTextColor}>
-                    {SITE_META.title}
-                </Heading>
-                {meData?.me ? (
-                    <NextLink href="create-post">
-                        <Button variant="outline" mt={8} ml="auto">
-                            📝 Create Post
-                        </Button>
-                    </NextLink>
-                ) : null}
-            </Flex>
+            {meData?.me ? (
+                <Box position="fixed" zIndex={1} bottom={6} right={6}>
+                    <CreatePostButton />
+                </Box>
+            ) : null}
+
             <Grid templateColumns="repeat(1, 1fr)" gap={6} mt={8}>
                 {!data && loading ? (
                     <>
                         {Array.from({ length: 3 }, (_, key) => (
-                            <PostItemSkeleton key={key} />
+                            <PostCardSkeleton key={key} />
                         ))}
                     </>
                 ) : (
-                    data?.posts.posts.map(p =>
-                        !p ? null : (
-                            <NextLink key={p.id} href={`post/${p.id}`}>
-                                <Box w="100%" borderWidth="1px" borderRadius="lg" overflow="hidden" p={6} cursor="pointer">
-                                    <Box fontWeight="semibold" lineHeight="tight" isTruncated>
-                                        {p.title}
-                                    </Box>
-
-                                    <Box color="gray.500" fontSize="sm" lineHeight="tight" isTruncated>
-                                        {p.contentSnippet}
-                                    </Box>
-                                    <Flex color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" mt={4}>
-                                        <Center>
-                                            <Box>{"💛 written by. ".toUpperCase() + p.author?.name}</Box>
-                                            <Divider orientation="vertical" ml={2} mr={2} height={3} />
-                                            <Box>{moment(parseInt(p.createdAt)).format("YYYY.MM.DD A h:mm")}</Box>
-                                            <Divider orientation="vertical" ml={2} mr={2} height={3} />
-                                            <Box>😍 {p.likes}</Box>
-                                            <Box ml={2}>👿 {p.dislikes}</Box>
-                                        </Center>
-                                    </Flex>
-                                </Box>
-                            </NextLink>
-                        )
-                    )
+                    data?.posts.posts.map(p => (!p ? null : <PostCard key={p.id} {...p} />))
                 )}
             </Grid>
 
@@ -99,4 +66,4 @@ const Index: NextPage = () => {
     );
 };
 
-export default withApollo({ ssr: true })(Index);
+export default withApollo({ ssr: false })(Index);

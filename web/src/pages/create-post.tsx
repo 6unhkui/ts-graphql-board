@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Heading } from "@chakra-ui/layout";
 import Layout from "components/Layout";
 import { Form, Formik } from "formik";
@@ -9,10 +9,14 @@ import { useCreatePostMutation } from "generated/graphql";
 import { useRouter } from "next/router";
 import { useIsAuth } from "hooks/useIsAuth";
 import { withApollo } from "utils/withApollo";
+import UploadImage from "components/UploadImage";
+import ko from "yup-locale-ko";
+
+Yup.setLocale(ko);
 
 const validationSchema = Yup.object().shape({
-    title: Yup.string().required("Required"),
-    content: Yup.string().required("Required")
+    title: Yup.string().required(),
+    content: Yup.string().required()
 });
 
 interface CreatePostProps {}
@@ -21,20 +25,31 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
     useIsAuth();
     const router = useRouter();
     const [createPost] = useCreatePostMutation();
+    const [images, setImages] = useState<string[]>([]);
 
     return (
         <Layout variant="small" title="Create Post">
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
-                    Create Post
+                    게시글 작성
                 </Heading>
             </Box>
+
+            <UploadImage
+                images={images}
+                onChangeImage={(image: string) => setImages(state => [image, ...state])}
+                onRemoveImage={(image: string) => setImages(state => state.filter(v => v !== image))}
+                mb={8}
+            />
+
             <Formik
                 initialValues={{ title: "", content: "" }}
                 validationSchema={validationSchema}
+                validateOnChange={false}
+                validateOnBlur={false}
                 onSubmit={async values => {
                     const { errors } = await createPost({
-                        variables: { input: values },
+                        variables: { input: { ...values, image: images } },
                         update: cache => {
                             cache.evict({ fieldName: "posts" });
                         }
@@ -46,13 +61,13 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
             >
                 {({ isSubmitting }) => (
                     <Form>
-                        <InputField name="title" label="Title" placeholder="제목을 입력하세요." />
+                        <InputField name="title" label="제목" placeholder="제목을 입력하세요." />
                         <Box mt={4}>
-                            <InputField name="content" label="Content" textarea placeholder="내용를 입력하세요." />
+                            <InputField name="content" label="내용" textarea placeholder="내용를 입력하세요." />
                         </Box>
 
                         <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
-                            Create Post
+                            작성하기
                         </Button>
                     </Form>
                 )}

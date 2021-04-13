@@ -5,8 +5,7 @@ import { Button } from "@chakra-ui/button";
 import { useLogoutMutation, useMeQuery } from "generated/graphql";
 import { DarkModeSwitch } from "components/DarkModeSwitch";
 import { isServer } from "utils/isServer";
-import { useApolloClient } from "@apollo/client";
-import { useColorMode, useColorModeValue, useTheme } from "@chakra-ui/system";
+import { useColorModeValue } from "@chakra-ui/system";
 import { SITE_META } from "../constants";
 
 interface NavBarProps {}
@@ -27,10 +26,10 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
         body = (
             <>
                 <NextLink href="/login">
-                    <Link mr={4}>Login</Link>
+                    <Link mr={4}>로그인</Link>
                 </NextLink>
                 <NextLink href="/register">
-                    <Link>Register</Link>
+                    <Link>회원가입</Link>
                 </NextLink>
             </>
         );
@@ -39,7 +38,7 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
         body = (
             <>
                 <NextLink href="/myinfo">
-                    <Link mr={4}>Hi, {data.me.name} 👋</Link>
+                    <Link mr={4}>{data.me.name}</Link>
                 </NextLink>
                 <Button
                     variant="link"
@@ -52,7 +51,7 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
                     }}
                     isLoading={logoutFetching}
                 >
-                    Logout
+                    로그아웃
                 </Button>
             </>
         );

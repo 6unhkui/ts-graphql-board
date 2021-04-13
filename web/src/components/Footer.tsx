@@ -1,5 +1,5 @@
-import { Box, Center, Divider } from "@chakra-ui/layout";
 import React from "react";
+import { Box, Center, Divider } from "@chakra-ui/layout";
 
 interface FooterProps {}
 
