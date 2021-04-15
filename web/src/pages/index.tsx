@@ -1,28 +1,53 @@
-import { Box, Center, Grid } from "@chakra-ui/layout";
+import { useCallback, useState } from "react";
+import { Box, Center, Grid, Heading } from "@chakra-ui/layout";
 import Layout from "components/Layout";
-import { useMeQuery, usePostsQuery } from "generated/graphql";
+import { PostsQueryVariables, useMeQuery, usePostsQuery } from "generated/graphql";
 import { NextPage } from "next";
 import { Button } from "@chakra-ui/button";
-import { useState } from "react";
 import { isServer } from "utils/isServer";
 import PostCardSkeleton from "components/PostCardSkeleton";
 import { withApollo } from "utils/withApollo";
 import PostCard from "components/PostCard";
 import CreatePostButton from "components/CreatePostButton";
+import { Input, InputGroup, InputLeftElement } from "@chakra-ui/input";
+import { Search2Icon } from "@chakra-ui/icons";
+import { useColorModeValue } from "@chakra-ui/color-mode";
+import { SITE_META } from "../constants";
 
 const DEFAULT_VARIABLES = {
     limit: 10
 };
+Object.freeze(DEFAULT_VARIABLES);
 
 const Index: NextPage = () => {
-    const [variables, setVariables] = useState(DEFAULT_VARIABLES);
+    const titleTextColor = useColorModeValue("primary.500", "white");
+    const [variables, setVariables] = useState<PostsQueryVariables>(DEFAULT_VARIABLES);
     const { data: meData } = useMeQuery({ skip: isServer() });
     const { data, loading, fetchMore } = usePostsQuery({
         variables,
         notifyOnNetworkStatusChange: true
     });
 
-    const increaseCursor = () => ({ ...variables, cursor: data.posts.posts[data.posts.posts.length - 1].id });
+    const variablesAfterCursorUpdate = () => ({ ...variables, cursor: data.posts.posts[data.posts.posts.length - 1].id });
+
+    const onChangKeyword = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const keyword = e.target.value.trim();
+            setVariables(variables => ({ ...variables, keyword }));
+        },
+        [setVariables]
+    );
+
+    const postsFetchMore = useCallback(
+        (variables: PostsQueryVariables) => {
+            setVariables(variables);
+
+            fetchMore({
+                variables: { ...variables }
+            });
+        },
+        [fetchMore, setVariables]
+    );
 
     return (
         <Layout variant="regular">
@@ -32,6 +57,33 @@ const Index: NextPage = () => {
                 </Box>
             ) : null}
 
+            <Box align="center">
+                <Heading fontSize={["2.5rem", "4rem"]} color={titleTextColor}>
+                    {SITE_META.title}
+                </Heading>
+            </Box>
+
+            <Box px={["0", "100px"]} mx="auto" mt={10}>
+                <InputGroup>
+                    <InputLeftElement pointerEvents="none" children={<Search2Icon color="gray.300" mt="8px" />} />
+                    <Input
+                        placeholder="검색어를 입력해주세요."
+                        size="lg"
+                        borderColor="primary.500"
+                        onChange={onChangKeyword}
+                        onKeyDown={e => {
+                            if (e.key === "Enter") {
+                                const param: PostsQueryVariables =
+                                    !variables?.keyword || variables.keyword.length === 0
+                                        ? DEFAULT_VARIABLES
+                                        : { limit: variables.limit, keyword: variables.keyword };
+                                postsFetchMore(param);
+                            }
+                        }}
+                    />
+                </InputGroup>
+            </Box>
+
             <Grid templateColumns="repeat(1, 1fr)" gap={6} mt={8}>
                 {!data && loading ? (
                     <>
@@ -40,7 +92,7 @@ const Index: NextPage = () => {
                         ))}
                     </>
                 ) : (
-                    data?.posts.posts.map(p => (!p ? null : <PostCard key={p.id} {...p} />))
+                    data?.posts.posts.map(post => (!post ? null : <PostCard key={post.id} {...post} />))
                 )}
             </Grid>
 
@@ -49,13 +101,7 @@ const Index: NextPage = () => {
                     <Button
                         isLoading={loading}
                         onClick={() => {
-                            fetchMore({
-                                variables: increaseCursor()
-                            }).then(() => {
-                                // Update variables.cursor for the original query to include
-                                // the newly added post items.
-                                setVariables(increaseCursor());
-                            });
+                            postsFetchMore(variablesAfterCursorUpdate());
                         }}
                     >
                         Load More
@@ -66,4 +112,4 @@ const Index: NextPage = () => {
     );
 };
 
-export default withApollo({ ssr: false })(Index);
+export default withApollo({ ssr: true })(Index);

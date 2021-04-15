@@ -5,6 +5,7 @@ import { PaginatedPosts } from "generated/graphql";
 import { NextPageContext } from "next";
 import { isServer } from "./isServer";
 import { createUploadLink } from "apollo-upload-client";
+import { __prod__ } from "../constants";
 
 const apolloClient = (ctx: NextPageContext) => {
     let cookie = "";
@@ -20,17 +21,24 @@ const apolloClient = (ctx: NextPageContext) => {
                 cookie
             }
         }),
+        connectToDevTools: !__prod__,
         cache: new InMemoryCache({
             typePolicies: {
                 Query: {
                     fields: {
                         posts: {
-                            keyArgs: [],
-                            merge(existing: PaginatedPosts | undefined, incoming: PaginatedPosts): PaginatedPosts {
-                                return {
-                                    ...incoming,
-                                    posts: [...(existing?.posts || []), ...incoming.posts]
-                                };
+                            keyArgs: false,
+                            merge(existing: PaginatedPosts | undefined, incoming: PaginatedPosts, options): PaginatedPosts {
+                                // cursor 값이 존재하는 경우
+                                // => 다음 페이지의 데이터를 불러오는 경우
+                                if (options.variables?.cursor) {
+                                    return {
+                                        ...incoming,
+                                        posts: [...(existing?.posts || []), ...incoming.posts]
+                                    };
+                                }
+
+                                return { ...incoming };
                             }
                         }
                     }

@@ -65,7 +65,7 @@ const main = async () => {
         })
     );
 
-    app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+    app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 10 }));
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({

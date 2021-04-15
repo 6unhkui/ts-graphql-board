@@ -6,11 +6,11 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 module.exports = withBundleAnalyzer({
     compress: true,
     webpack(config, { webpack }) {
-        const isProd = process.env.NODE_ENV === "production";
+        const __prod__ = process.env.NODE_ENV === "production";
         return {
             ...config,
-            mode: isProd ? "production" : "development",
-            devtool: isProd ? "hidden-source-map" : "eval",
+            mode: __prod__ ? "production" : "development",
+            devtool: __prod__ ? "hidden-source-map" : "eval",
             plugins: [...config.plugins, new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /^\.\/ko$/)]
         };
     }

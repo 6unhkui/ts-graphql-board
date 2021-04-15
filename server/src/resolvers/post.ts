@@ -15,17 +15,19 @@ export class PostResolver {
 
     @Query(() => PaginatedPosts)
     async posts(
+        @Ctx() { req }: MyContext,
         @Arg("limit", () => Int) limit: number,
-        @Arg("cursor", () => Int, { nullable: true }) cursor: number | null
+        @Arg("cursor", () => Int, { nullable: true }) cursor?: number,
+        @Arg("keyword", { nullable: true }) keyword?: string
     ): Promise<PaginatedPosts> {
         // limit 갯수보다 1개 더 조회해서 그 개수가 조회한 데이터 개수보다 크면
         // => hasMore : true
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
 
-        // const selectReactionSubQuery = req.session.userId
-        //     ? `(SELECT value FROM reaction WHERE "userId" = ${req.session.userId} AND "postId" = post.id) "reactionStatus"`
-        //     : 'null as "reactionStatus"';
+        const selectReactionSubQuery = req.session.userId
+            ? `(SELECT value FROM reaction WHERE "userId" = ${req.session.userId} AND "postId" = post.id) "reactionStatus"`
+            : 'null as "reactionStatus"';
 
         const cursorSubQuery = cursor
             ? cursor - 1
@@ -39,13 +41,16 @@ export class PostResolver {
         const postLimitSubQuery = `
             SELECT id
             FROM post
-            WHERE post."isDelete" = 0 AND post.id <= (${cursorSubQuery})
+            WHERE ${
+                keyword ? `(post."title" LIKE '%${keyword}%' OR post."content" LIKE '%${keyword}%') AND` : ""
+            } post.id <= (${cursorSubQuery}) AND post."isDelete" = 0
             ORDER BY id desc 
             LIMIT ${realLimitPlusOne}
         `;
 
         const posts = await getRepository(Post)
             .createQueryBuilder("post")
+            .addSelect(selectReactionSubQuery)
             .leftJoinAndSelect("post.author", "author", "author.isDelete = 0")
             .leftJoinAndSelect("post.images", "images", "images.isDelete = 0")
             .where(`post.id IN (${postLimitSubQuery})`)

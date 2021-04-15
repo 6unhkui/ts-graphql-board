@@ -1,5 +1,5 @@
-query Posts($limit: Int!, $cursor: Int) {
-    posts(limit: $limit, cursor: $cursor) {
+query Posts($limit: Int!, $cursor: Int, $keyword: String) {
+    posts(limit: $limit, cursor: $cursor, keyword: $keyword) {
         posts {
             ...RegularPost
         }

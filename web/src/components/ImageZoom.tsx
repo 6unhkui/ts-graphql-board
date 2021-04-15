@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { IconButton } from "@chakra-ui/button";
 import { Image } from "@chakra-ui/image";
 import { Box, Center } from "@chakra-ui/layout";
@@ -24,6 +24,7 @@ const globalStyle = css`
         display: flex !important;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
 
         li {
             width: 80px;
@@ -46,9 +47,12 @@ const globalStyle = css`
 interface ImageZoomProps {
     images: string[];
     onClose?: () => void;
+    initImage?: string;
 }
 
-const ImageZoom: React.FC<ImageZoomProps> = ({ images, onClose }) => {
+const ImageZoom: React.FC<ImageZoomProps> = ({ images, onClose, initImage }) => {
+    const [currentImageIndex] = useState<number>(initImage ? images.findIndex(v => v === initImage) : 0);
+
     return (
         <Box position="fixed" zIndex={1000} top={0} left={0} right={0} bottom={0} bg="blackAlpha.800" cursor="auto">
             <Global styles={globalStyle} />
@@ -69,18 +73,18 @@ const ImageZoom: React.FC<ImageZoomProps> = ({ images, onClose }) => {
 
             <Box mt="10vh">
                 <Slick
-                    initialSlide={0}
+                    initialSlide={currentImageIndex}
                     infinite
                     arrows={false}
                     slidesToShow={1}
                     slidesToScroll={1}
-                    customPaging={i => <Image src={images[i]} alt="image" />}
+                    customPaging={i => <Image src={images[i]} alt={images[i]} />}
                     dots={true}
                     dotsClass="slick-dots slick-thumb"
                 >
                     {images.map(image => (
                         <Center key={image} textAlign="center">
-                            <Image src={image} alt="image" m="auto" maxHeight="50vh" />
+                            <Image src={image} alt={image} m="auto" maxHeight="50vh" />
                         </Center>
                     ))}
                 </Slick>

@@ -46,9 +46,11 @@ const UploadButton: React.FC<UploadButtonProps> = ({ images, onChangeImage, onRe
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
     const [showImageZoom, setShowImageZoom] = useState<boolean>(false);
+    const [currentImage, setCurrentImage] = useState<string>("");
 
-    const onZoom = useCallback(() => {
+    const onZoom = useCallback((image?: string) => {
         setShowImageZoom(true);
+        if (image) setCurrentImage(image);
     }, []);
 
     const onClose = useCallback(() => {
@@ -70,7 +72,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ images, onChangeImage, onRe
                             borderRadius={0}
                             onClick={() => onRemoveImage(url)}
                         />
-                        <Image src={url} alt="thumbnail" objectFit="cover" mx="auto" loading="eager" onClick={onZoom} />
+                        <Image src={url} alt={url} objectFit="cover" mx="auto" loading="eager" onClick={() => onZoom(url)} />
                     </BoxWrapper>
                 ))}
 
@@ -87,7 +89,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ images, onChangeImage, onRe
                 {`이미지 등록 버튼에 파일을 Drag & Drop 하거나 버튼을 클릭해주세요.`}
             </Text>
 
-            {showImageZoom ? <ImageZoom images={images} onClose={onClose} /> : null}
+            {showImageZoom ? <ImageZoom images={images} onClose={onClose} initImage={currentImage} /> : null}
         </Box>
     );
 };

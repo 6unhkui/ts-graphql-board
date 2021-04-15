@@ -8,6 +8,6 @@ export default {
     url: process.env.DATABASE_URL,
     entities: [Base, Post, User, Reaction, Image],
     migrations: [path.join(__dirname, "./migrations/*")],
-    synchronize: true,
+    synchronize: !__prod__,
     logging: !__prod__
 } as ConnectionOptions;

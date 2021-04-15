@@ -49,7 +49,7 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
                 validateOnBlur={false}
                 onSubmit={async values => {
                     const { errors } = await createPost({
-                        variables: { input: { ...values, image: images } },
+                        variables: { input: { ...values, images } },
                         update: cache => {
                             cache.evict({ fieldName: "posts" });
                         }

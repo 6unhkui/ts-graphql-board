@@ -24,6 +24,7 @@ export type Query = {
 };
 
 export type QueryPostsArgs = {
+    keyword?: Maybe<Scalars["String"]>;
     cursor?: Maybe<Scalars["Int"]>;
     limit: Scalars["Int"];
 };
@@ -300,6 +301,7 @@ export type PostQuery = { __typename?: "Query" } & { post?: Maybe<{ __typename?:
 export type PostsQueryVariables = Exact<{
     limit: Scalars["Int"];
     cursor?: Maybe<Scalars["Int"]>;
+    keyword?: Maybe<Scalars["String"]>;
 }>;
 
 export type PostsQuery = { __typename?: "Query" } & {
@@ -822,8 +824,8 @@ export type PostQueryHookResult = ReturnType<typeof usePostQuery>;
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>;
 export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>;
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: Int) {
-        posts(limit: $limit, cursor: $cursor) {
+    query Posts($limit: Int!, $cursor: Int, $keyword: String) {
+        posts(limit: $limit, cursor: $cursor, keyword: $keyword) {
             posts {
                 ...RegularPost
             }
@@ -847,6 +849,7 @@ export const PostsDocument = gql`
  *   variables: {
  *      limit: // value for 'limit'
  *      cursor: // value for 'cursor'
+ *      keyword: // value for 'keyword'
  *   },
  * });
  */

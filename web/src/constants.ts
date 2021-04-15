@@ -1,9 +1,4 @@
-interface SiteMeta {
-    title: string;
-    description: string;
-    image: string;
-    url: string;
-}
+import { SiteMeta } from "types/SiteMeta";
 
 const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
 export const SITE_META: SiteMeta = {
@@ -12,3 +7,5 @@ export const SITE_META: SiteMeta = {
     image: `${origin}/images/site-image.png`,
     url: origin
 };
+
+export const __prod__ = process.env.NODE_ENV === "production";
