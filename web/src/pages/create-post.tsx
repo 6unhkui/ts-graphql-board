@@ -11,6 +11,7 @@ import { useIsAuth } from "hooks/useIsAuth";
 import { withApollo } from "utils/withApollo";
 import UploadImage from "components/UploadImage";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
 
 Yup.setLocale(ko);
 
@@ -28,7 +29,8 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
     const [images, setImages] = useState<string[]>([]);
 
     return (
-        <Layout variant="small" title="Create Post">
+        <Layout variant="small">
+            <SEO title="게시글 작성" />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     게시글 작성

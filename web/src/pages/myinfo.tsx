@@ -14,6 +14,9 @@ import { useRouter } from "next/router";
 import WithdrawAlert from "components/Alert";
 import { useIsAuth } from "hooks/useIsAuth";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
+import { Avatar, AvatarBadge } from "@chakra-ui/avatar";
+import { SettingsIcon } from "@chakra-ui/icons";
 
 Yup.setLocale(ko);
 
@@ -41,10 +44,9 @@ const myinfo: React.FC<myinfoProps> = ({}) => {
     const [updateProfile] = useUpdateProfileMutation();
     const [withdraw] = useWithdrawMutation();
 
-    // const keys = Object.keys(data?.me || {}) as (keyof RegularUserFragment)[] | [];
-
     return (
-        <Layout variant="small" title="My Info">
+        <Layout variant="small">
+            <SEO title="내 정보" />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     내 정보
@@ -61,63 +63,72 @@ const myinfo: React.FC<myinfoProps> = ({}) => {
                     </Box>
                 ))
             ) : (
-                <Formik
-                    initialValues={{ email: data?.me.email, name: data?.me.name, password: "", confirmNewPassword: "" }}
-                    validationSchema={validationSchema}
-                    onSubmit={async (values, { setErrors }) => {
-                        delete values.confirmNewPassword;
-                        if (values.password.trim().length === 0) {
-                            delete values.password;
-                        }
-
-                        const { data } = await updateProfile({
-                            variables: { options: values },
-                            update: (cache, { data }) => {
-                                cache.writeQuery<MeQuery>({
-                                    query: MeDocument,
-                                    data: {
-                                        __typename: "Query",
-                                        me: data.updateProfile.user
-                                    }
-                                });
+                <>
+                    {/* <Center>
+                        <Avatar size="2xl" name={data.me.name} src="">
+                            <AvatarBadge boxSize="1em" bg="green.500">
+                                <SettingsIcon fontSize="sm" />
+                            </AvatarBadge>
+                        </Avatar>
+                    </Center> */}
+                    <Formik
+                        initialValues={{ email: data?.me.email, name: data?.me.name, password: "", confirmNewPassword: "" }}
+                        validationSchema={validationSchema}
+                        onSubmit={async (values, { setErrors }) => {
+                            delete values.confirmNewPassword;
+                            if (values.password.trim().length === 0) {
+                                delete values.password;
                             }
-                        });
 
-                        if (data?.updateProfile.errors) {
-                            setErrors(toErrorMap(data?.updateProfile.errors));
-                        } else if (data?.updateProfile.user) {
-                            router.push("/");
-                        }
-                    }}
-                >
-                    {({ isSubmitting }) => (
-                        <Form>
-                            <InputField name="email" label="이메일" placeholder="계정을 입력하세요." />
-                            <Box mt={4}>
-                                <InputField name="name" label="이름" placeholder="이름을 입력하세요." />
-                            </Box>
-                            <Box mt={4}>
-                                <InputField
-                                    name="password"
-                                    label="새 비밀번호"
-                                    type="password"
-                                    placeholder="비밀번호를 입력하세요."
-                                />
-                            </Box>
-                            <Box mt={4}>
-                                <InputField
-                                    name="confirmNewPassword"
-                                    label="새 비밀번호 확인"
-                                    type="password"
-                                    placeholder="비밀번호를 다시 한 번 입력하세요."
-                                />
-                            </Box>
-                            <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
-                                저장
-                            </Button>
-                        </Form>
-                    )}
-                </Formik>
+                            const { data } = await updateProfile({
+                                variables: { options: values },
+                                update: (cache, { data }) => {
+                                    cache.writeQuery<MeQuery>({
+                                        query: MeDocument,
+                                        data: {
+                                            __typename: "Query",
+                                            me: data.updateProfile.user
+                                        }
+                                    });
+                                }
+                            });
+
+                            if (data?.updateProfile.errors) {
+                                setErrors(toErrorMap(data?.updateProfile.errors));
+                            } else if (data?.updateProfile.user) {
+                                router.push("/");
+                            }
+                        }}
+                    >
+                        {({ isSubmitting }) => (
+                            <Form>
+                                <InputField name="email" label="이메일" placeholder="계정을 입력하세요." />
+                                <Box mt={4}>
+                                    <InputField name="name" label="이름" placeholder="이름을 입력하세요." />
+                                </Box>
+                                <Box mt={4}>
+                                    <InputField
+                                        name="password"
+                                        label="새 비밀번호"
+                                        type="password"
+                                        placeholder="비밀번호를 입력하세요."
+                                    />
+                                </Box>
+                                <Box mt={4}>
+                                    <InputField
+                                        name="confirmNewPassword"
+                                        label="새 비밀번호 확인"
+                                        type="password"
+                                        placeholder="비밀번호를 다시 한 번 입력하세요."
+                                    />
+                                </Box>
+                                <Button mt={4} type="submit" isLoading={isSubmitting} width={"full"}>
+                                    저장
+                                </Button>
+                            </Form>
+                        )}
+                    </Formik>
+                </>
             )}
 
             <WithdrawAlert

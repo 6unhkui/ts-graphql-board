@@ -10,6 +10,7 @@ import Layout from "components/Layout";
 import { NextPage } from "next";
 import { withApollo } from "utils/withApollo";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
 
 Yup.setLocale(ko);
 
@@ -26,7 +27,8 @@ const Register: NextPage<registerProps> = ({}) => {
     const [register] = useRegisterMutation();
 
     return (
-        <Layout variant="small" title="Register">
+        <Layout variant="small">
+            <SEO title="회원가입" />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     회원가입

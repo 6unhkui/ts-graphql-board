@@ -5,6 +5,7 @@ import { Box, Center, Divider, Flex } from "@chakra-ui/layout";
 import { RegularPostFragment } from "generated/graphql";
 import Emoji from "./Emoji";
 import PostCardImages from "./PostCardImages";
+import { Avatar } from "@chakra-ui/avatar";
 
 moment.locale("ko");
 
@@ -37,17 +38,18 @@ const PostCard: React.FC<PostCardProps & RegularPostFragment> = ({
                         <Flex color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" mt={4}>
                             <Center>
                                 <Box>
-                                    <Emoji mr={8}>💛</Emoji>
-                                    {"written by. ".toUpperCase() + author?.name}
+                                    <Emoji mr={2}>💛</Emoji>
+                                    {"written by. ".toUpperCase()}
+                                    {author?.name}
                                 </Box>
                                 <Divider orientation="vertical" ml={2} mr={2} height={3} />
                                 <Box>{moment(parseInt(createdAt)).format("YYYY.MM.DD A h:mm")}</Box>
                                 <Divider orientation="vertical" ml={2} mr={2} height={3} />
                                 <Box>
-                                    <Emoji mr={6}>😍</Emoji> {likes}
+                                    <Emoji mr={1}>😍</Emoji> {likes}
                                 </Box>
                                 <Box ml={2}>
-                                    <Emoji mr={6}>👿</Emoji> {dislikes}
+                                    <Emoji mr={1}>👿</Emoji> {dislikes}
                                 </Box>
                             </Center>
                         </Flex>

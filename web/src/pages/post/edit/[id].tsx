@@ -13,6 +13,7 @@ import { withApollo } from "utils/withApollo";
 import * as Yup from "yup";
 import UploadImage from "components/UploadImage";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
 
 Yup.setLocale(ko);
 
@@ -53,7 +54,8 @@ const PostEdit: React.FC<PostEditProps> = ({}) => {
     }
 
     return (
-        <Layout variant="small" title="Edit Post">
+        <Layout variant="small">
+            <SEO title={data?.post?.title} />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     게시글 수정

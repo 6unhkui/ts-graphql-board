@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@chakra-ui/alert
 import NextLink from "next/link";
 import { withApollo } from "utils/withApollo";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
 
 Yup.setLocale(ko);
 
@@ -31,7 +32,8 @@ const ChangePassword: NextPage = () => {
     const [tokenError, setTokenError] = useState("");
 
     return (
-        <Layout variant="small" title="Change Password">
+        <Layout variant="small">
+            <SEO title="비밀번호 변경" />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     비밀번호 변경
@@ -42,10 +44,10 @@ const ChangePassword: NextPage = () => {
                 <Alert status="error" mb={6}>
                     <AlertIcon />
                     <Box flex="1">
-                        <AlertTitle> {tokenError}</AlertTitle>
+                        <AlertTitle>{tokenError}</AlertTitle>
                         <AlertDescription display="block">
                             <NextLink href="/forgot-password">
-                                <Link>{"go forget it again >"}</Link>
+                                <Link>{"다시 비밀번호 찾기 >"}</Link>
                             </NextLink>
                         </AlertDescription>
                     </Box>

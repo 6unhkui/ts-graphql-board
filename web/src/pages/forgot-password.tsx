@@ -9,6 +9,7 @@ import { withApollo } from "utils/withApollo";
 import * as Yup from "yup";
 import NextLink from "next/link";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
 
 Yup.setLocale(ko);
 
@@ -23,7 +24,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
     const [complete, setComplete] = useState(false);
 
     return (
-        <Layout variant="small" title="Forgot Password">
+        <Layout variant="small">
+            <SEO title="비밀번호 찾기" />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     비밀번호 찾기

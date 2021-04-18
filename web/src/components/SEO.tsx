@@ -1,35 +1,35 @@
 import React from "react";
 import { NextSeo } from "next-seo";
-import { SITE_META } from "../constants";
-
-type image = {
-    url: string;
-    width: number;
-    height: number;
-};
+import { DEFAULT_SEO, SITE_NAME } from "../constants";
+import { OpenGraphImages } from "next-seo/lib/types";
 
 interface SEOProps {
     title?: string;
     description?: string;
-    image?: image;
+    image?: OpenGraphImages;
+    path?: string;
 }
 
-const defaultImage: image = {
-    url: SITE_META.image,
-    width: 500,
-    height: 300
-};
+const SEO: React.FC<SEOProps> = ({
+    title = DEFAULT_SEO.openGraph.title,
+    description = DEFAULT_SEO.openGraph.description,
+    image,
+    path
+}) => {
+    const currenURL = path ? process.env.NEXT_PUBLIC_WEB_URL + path : process.env.NEXT_PUBLIC_WEB_URL;
+    const ogImage = !image ? DEFAULT_SEO.openGraph.images[0] : { ...DEFAULT_SEO.openGraph.images[0], ...image };
 
-const SEO: React.FC<SEOProps> = ({ title = "", description = "", image = defaultImage }) => {
     return (
         <NextSeo
-            title={title ? `${title} | ${SITE_META.title}` : SITE_META.title}
-            description={description ? description : SITE_META.description}
+            {...DEFAULT_SEO}
+            titleTemplate={`%s | ${SITE_NAME}`}
+            title={title}
+            description={description}
             openGraph={{
-                url: SITE_META.url,
-                title: title ? title : SITE_META.title,
+                url: currenURL,
+                title,
                 description,
-                images: [image]
+                images: [ogImage]
             }}
         />
     );

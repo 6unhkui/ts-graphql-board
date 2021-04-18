@@ -4,11 +4,7 @@ import { Button } from "@chakra-ui/button";
 import { Center } from "@chakra-ui/layout";
 import { ReactionMutation, RegularPostFragment, useReactionMutation } from "generated/graphql";
 import gql from "graphql-tag";
-
-interface ReactionSectionProps {
-    post: RegularPostFragment;
-    disabled: boolean;
-}
+import Emoji from "./Emoji";
 
 const updateAfterReaction = (value: number, postId: number, cache: ApolloCache<ReactionMutation>) => {
     const data = cache.readFragment<{ id: number; likes: number; dislikes: number; reactionStatus: number }>({
@@ -53,31 +49,33 @@ const updateAfterReaction = (value: number, postId: number, cache: ApolloCache<R
             }
         }
 
-        cache.writeFragment(
-            {
-                id: "Post:" + postId,
-                fragment: gql`
-                    fragment _ on Post {
-                        likes
-                        dislikes
-                        reactionStatus
-                    }
-                `,
-                data: { likes: newLike, dislikes: newDislike, reactionStatus: value }
-            }
-            // { id: post.id, likes: newLike, dislikes: newDislike, reactionStatus: value } as any
-        );
+        cache.writeFragment({
+            id: "Post:" + postId,
+            fragment: gql`
+                fragment _ on Post {
+                    likes
+                    dislikes
+                    reactionStatus
+                }
+            `,
+            data: { likes: newLike, dislikes: newDislike, reactionStatus: value }
+        });
     }
 };
 
+interface ReactionSectionProps {
+    post: RegularPostFragment;
+    disabled: boolean;
+}
+
 const ReactionSection: React.FC<ReactionSectionProps> = ({ post, disabled }) => {
-    const [reaction, { loading }] = useReactionMutation();
+    const [reaction] = useReactionMutation();
 
     return (
         <Center>
             <Button
                 disabled={disabled}
-                variant={post.reactionStatus === 1 ? "solid" : "outline"}
+                variant={post?.reactionStatus === 1 ? "solid" : "outline"}
                 mr={2}
                 onClick={() => {
                     const value = post.reactionStatus === 1 ? 0 : 1;
@@ -86,13 +84,12 @@ const ReactionSection: React.FC<ReactionSectionProps> = ({ post, disabled }) => 
                         update: cache => updateAfterReaction(value, post.id, cache)
                     });
                 }}
-                loading={loading}
             >
-                😍 좋아요 {post?.likes}
+                <Emoji mr={2}>😍</Emoji> 좋아요 {post?.likes}
             </Button>
             <Button
                 disabled={disabled}
-                variant={post.reactionStatus === -1 ? "solid" : "outline"}
+                variant={post?.reactionStatus === -1 ? "solid" : "outline"}
                 onClick={() => {
                     const value = post.reactionStatus === -1 ? 0 : -1;
                     reaction({
@@ -100,9 +97,8 @@ const ReactionSection: React.FC<ReactionSectionProps> = ({ post, disabled }) => 
                         update: cache => updateAfterReaction(value, post.id, cache)
                     });
                 }}
-                loading={loading}
             >
-                👿 싫어요 {post?.dislikes}
+                <Emoji mr={2}>👿</Emoji> 싫어요 {post?.dislikes}
             </Button>
         </Center>
     );

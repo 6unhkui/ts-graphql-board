@@ -87,7 +87,7 @@ export class PostResolver {
             return null;
         }
 
-        const post = await Post.create({ title: input.title, content: input.title, author: user }).save();
+        const post = await Post.create({ title: input.title, content: input.content, author: user }).save();
         if (input.images) {
             const images = await Promise.all(input.images.map(image => Image.create({ url: image, post }).save()));
             post.addImages(images);

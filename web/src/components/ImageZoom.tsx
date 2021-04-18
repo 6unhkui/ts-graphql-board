@@ -78,7 +78,9 @@ const ImageZoom: React.FC<ImageZoomProps> = ({ images, onClose, initImage }) => 
                     arrows={false}
                     slidesToShow={1}
                     slidesToScroll={1}
-                    customPaging={i => <Image src={images[i]} alt={images[i]} />}
+                    customPaging={i => (
+                        <Image src={images[i].replace(/original/, "thumb")} alt={images[i]} fallbackSrc={images[i]} />
+                    )}
                     dots={true}
                     dotsClass="slick-dots slick-thumb"
                 >

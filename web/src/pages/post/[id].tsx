@@ -13,16 +13,26 @@ import { isServer } from "utils/isServer";
 import { useGetIntIdFromUrl } from "hooks/useGetIntIdFromUrl";
 import { withApollo } from "utils/withApollo";
 import { Image } from "@chakra-ui/image";
+import SEO from "components/SEO";
+import { useRouter } from "next/router";
+import Emoji from "components/Emoji";
 
 interface PostProps {}
 
 const Post: React.FC<PostProps> = ({}) => {
+    const router = useRouter();
     const intId = useGetIntIdFromUrl();
     const { data: meData } = useMeQuery({ skip: isServer() });
     const { data, loading } = usePostQuery({ variables: { id: intId } });
 
     return (
-        <Layout variant="regular" title={data?.post?.title} description={data?.post?.contentSnippet}>
+        <Layout variant="regular">
+            <SEO
+                title={data?.post?.title}
+                description={data?.post?.contentSnippet}
+                image={data?.post?.images.length > 0 ? { url: data?.post?.images[0].url } : null}
+                path={router.asPath}
+            />
             {loading || !data?.post ? (
                 <Box w="100%" p={6}>
                     <Skeleton height="50px" mb={4} />
@@ -38,13 +48,14 @@ const Post: React.FC<PostProps> = ({}) => {
 
                     <Box mt={4} color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm">
                         <Center>
-                            <Box>{"💛 written by. ".toUpperCase() + data?.post?.author?.name}</Box>
-                            <Divider orientation="vertical" ml={2} mr={2} height={3} />
                             <Box>
-                                {typeof data?.post?.createdAt === "string"
-                                    ? moment(parseInt(data?.post?.createdAt)).format("YYYY.MM.DD A h:mm")
-                                    : ""}
+                                <Emoji mr={2}>💛</Emoji>
+                                {"written by. ".toUpperCase() + data?.post?.author?.name}
                             </Box>
+                            <Divider orientation="vertical" ml={2} mr={2} height={3} />
+                            {typeof data?.post?.createdAt === "string" ? (
+                                <Box>{moment(parseInt(data?.post?.createdAt)).format("YYYY.MM.DD A h:mm")}</Box>
+                            ) : null}
                         </Center>
                     </Box>
 

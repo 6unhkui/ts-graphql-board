@@ -12,18 +12,17 @@ import CreatePostButton from "components/CreatePostButton";
 import { Input, InputGroup, InputLeftElement } from "@chakra-ui/input";
 import { Search2Icon } from "@chakra-ui/icons";
 import { useColorModeValue } from "@chakra-ui/color-mode";
-import { SITE_META } from "../constants";
+import { SITE_NAME } from "../constants";
 
-const DEFAULT_VARIABLES = {
+const DEFAULT_VARIABLES = Object.freeze({
     limit: 10
-};
-Object.freeze(DEFAULT_VARIABLES);
+});
 
 const Index: NextPage = () => {
     const titleTextColor = useColorModeValue("primary.500", "white");
     const [variables, setVariables] = useState<PostsQueryVariables>(DEFAULT_VARIABLES);
     const { data: meData } = useMeQuery({ skip: isServer() });
-    const { data, loading, fetchMore } = usePostsQuery({
+    const { data, loading, fetchMore, refetch, client } = usePostsQuery({
         variables,
         notifyOnNetworkStatusChange: true
     });
@@ -59,7 +58,7 @@ const Index: NextPage = () => {
 
             <Box align="center">
                 <Heading fontSize={["2.5rem", "4rem"]} color={titleTextColor}>
-                    {SITE_META.title}
+                    {SITE_NAME}
                 </Heading>
             </Box>
 
@@ -77,6 +76,7 @@ const Index: NextPage = () => {
                                     !variables?.keyword || variables.keyword.length === 0
                                         ? DEFAULT_VARIABLES
                                         : { limit: variables.limit, keyword: variables.keyword };
+
                                 postsFetchMore(param);
                             }
                         }}
@@ -91,8 +91,12 @@ const Index: NextPage = () => {
                             <PostCardSkeleton key={key} />
                         ))}
                     </>
-                ) : (
+                ) : data?.posts.posts.length > 0 ? (
                     data?.posts.posts.map(post => (!post ? null : <PostCard key={post.id} {...post} />))
+                ) : (
+                    <Center mt={14} color="gray.500">
+                        게시글이 존재하지 않습니다.
+                    </Center>
                 )}
             </Grid>
 

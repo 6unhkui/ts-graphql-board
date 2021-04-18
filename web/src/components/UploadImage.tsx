@@ -7,7 +7,7 @@ import { useUploadImageMutation } from "generated/graphql";
 import ImageZoom from "./ImageZoom";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 
-const BoxWrapper: React.FC<{ rootProps?: DropzoneRootProps }> = ({ children, rootProps }) => (
+const BoxWrapper: React.FC<{ rootProps?: DropzoneRootProps }> = React.memo(({ children, rootProps }) => (
     <Box
         variant="outline"
         display="flex"
@@ -23,7 +23,9 @@ const BoxWrapper: React.FC<{ rootProps?: DropzoneRootProps }> = ({ children, roo
     >
         {children}
     </Box>
-);
+));
+
+BoxWrapper.displayName = "BoxWrapper";
 
 interface UploadButtonProps {
     images?: string[];
@@ -72,7 +74,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ images, onChangeImage, onRe
                             borderRadius={0}
                             onClick={() => onRemoveImage(url)}
                         />
-                        <Image src={url} alt={url} objectFit="cover" mx="auto" loading="eager" onClick={() => onZoom(url)} />
+                        <Image src={url} alt={url} objectFit="cover" mx="auto" onClick={() => onZoom(url)} loading="eager" />
                     </BoxWrapper>
                 ))}
 

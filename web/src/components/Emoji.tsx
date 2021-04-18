@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/layout";
 import React from "react";
 
 interface EmojiProps {
@@ -6,9 +7,9 @@ interface EmojiProps {
 
 const Emoji: React.FC<EmojiProps> = ({ mr, children }) => {
     return (
-        <span role="img" style={{ marginRight: mr ? mr.toString() + "px" : "" }}>
+        <Box as="span" role="img" mr={mr}>
             {children}
-        </span>
+        </Box>
     );
 };
 

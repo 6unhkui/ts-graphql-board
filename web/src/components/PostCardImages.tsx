@@ -1,19 +1,21 @@
 import React, { useState, useCallback } from "react";
 import { Image } from "@chakra-ui/image";
-import { Box, Center, Flex, Grid } from "@chakra-ui/layout";
+import { Box, Grid } from "@chakra-ui/layout";
 import { RegularPostFragment } from "generated/graphql";
 import ImageZoom from "./ImageZoom";
 
-const Thumbnail: React.FC<{ src: string }> = ({ src }) => (
-    <Image src={src} alt={src} fit="cover" height={220} width="100%" loading="lazy" />
-);
+const Thumbnail: React.FC<{ src: string }> = React.memo(({ src }) => (
+    <Image src={src} alt={src} fit="cover" height={220} width="100%" fallbackSrc={src.replace(/thumb/, "original")} />
+));
+
+Thumbnail.displayName = "Thumbnail";
 
 const showImageMaxCnt = 2;
 
 interface PostCardImagesProps {}
 
 const PostCardImages: React.FC<PostCardImagesProps & Pick<RegularPostFragment, "images">> = ({ images }) => {
-    const hasMoreImage = showImageMaxCnt < images.length;
+    const hasMoreImage = showImageMaxCnt < images.length - 1;
     const [showImageZoom, setShowImageZoom] = useState<boolean>(false);
     const [currentImage, setCurrentImage] = useState<string>("");
 
@@ -29,9 +31,9 @@ const PostCardImages: React.FC<PostCardImagesProps & Pick<RegularPostFragment, "
     return (
         <>
             <Grid templateColumns={`repeat(${Math.min(images.length, 3)}, 1fr)`}>
-                {images.slice(0, showImageMaxCnt).map(({ url }, i) => (
+                {images.slice(0, hasMoreImage ? showImageMaxCnt : showImageMaxCnt + 1).map(({ url }, i) => (
                     <Box key={i} onClick={() => onZoom(url)}>
-                        <Thumbnail src={url} />
+                        <Thumbnail src={url.replace(/original/, "thumb")} />
                     </Box>
                 ))}
 

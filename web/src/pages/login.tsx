@@ -11,6 +11,7 @@ import { NextPage } from "next";
 import NextLink from "next/link";
 import { withApollo } from "utils/withApollo";
 import ko from "yup-locale-ko";
+import SEO from "components/SEO";
 
 Yup.setLocale(ko);
 
@@ -26,7 +27,8 @@ const Login: NextPage<loginProps> = ({}) => {
     const [login] = useLoginMutation();
 
     return (
-        <Layout variant="small" title="Login">
+        <Layout variant="small">
+            <SEO title="로그인" />
             <Box mb={10}>
                 <Heading fontSize={"3rem"} textAlign={"center"}>
                     로그인
