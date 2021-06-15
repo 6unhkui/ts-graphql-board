@@ -56,8 +56,7 @@ const main = async () => {
                 maxAge: 1000 * 60 * 60 * 24 * 364 * 10, // 10 years
                 httpOnly: true,
                 sameSite: "lax", // csrf
-                secure: __prod__, // cookie only works in https
-                domain: __prod__ ? ".boardapp.ga" : undefined
+                secure: __prod__ // cookie only works in https
             },
             saveUninitialized: false,
             secret: process.env.SESSION_SECRET || "sadskasadsdqweccs",
@@ -65,7 +64,12 @@ const main = async () => {
         })
     );
 
-    app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 10 }));
+    app.use(
+        graphqlUploadExpress({
+            maxFileSize: 5 * 1024 * 1024,
+            maxFiles: 10
+        })
+    );
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
@@ -75,13 +79,11 @@ const main = async () => {
         context: ({ req, res }): MyContext => ({
             req,
             res,
-            redis,
-            userLoader: createUserLoader(),
-            reactionLoader: createReactionLoader()
+            redis
         }),
         uploads: false
     });
-    createUserLoader;
+
     apolloServer.applyMiddleware({
         app,
         cors: false

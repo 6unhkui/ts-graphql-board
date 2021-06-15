@@ -70,7 +70,6 @@ const ImageZoom: React.FC<ImageZoomProps> = ({ images, onClose, initImage }) => 
                 _hover={{ backgroundColor: "transparent" }}
                 _active={{ backgroundColor: "transparent" }}
             />
-
             <Box mt="10vh">
                 <Slick
                     initialSlide={currentImageIndex}
@@ -79,7 +78,13 @@ const ImageZoom: React.FC<ImageZoomProps> = ({ images, onClose, initImage }) => 
                     slidesToShow={1}
                     slidesToScroll={1}
                     customPaging={i => (
-                        <Image src={images[i].replace(/original/, "thumb")} alt={images[i]} fallbackSrc={images[i]} />
+                        <Image
+                            src={images[i].replace(/original/, "thumb")}
+                            alt={images[i]}
+                            fallbackSrc={images[i]}
+                            height="inherit"
+                            objectFit="cover"
+                        />
                     )}
                     dots={true}
                     dotsClass="slick-dots slick-thumb"

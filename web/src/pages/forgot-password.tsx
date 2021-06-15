@@ -31,25 +31,26 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                     비밀번호 찾기
                 </Heading>
             </Box>
-            <Formik
-                initialValues={{ email: "" }}
-                validationSchema={validationSchema}
-                onSubmit={async values => {
-                    await forgotPassword({ variables: values });
-                    setComplete(true);
-                }}
-            >
-                {({ isSubmitting }) =>
-                    complete ? (
-                        <Box textAlign="center">
-                            존재하는 계정이라면, 입력한 메일 주소로 메일이 정상적으로 전송되었습니다.
-                            <Center mt={4}>
-                                <NextLink href="/">
-                                    <Button>메인으로 가기</Button>
-                                </NextLink>
-                            </Center>
-                        </Box>
-                    ) : (
+
+            {complete ? (
+                <Box textAlign="center">
+                    입력한 메일 주소로 메일이 전송되었습니다.
+                    <Center mt={4}>
+                        <NextLink href="/">
+                            <Button>메인으로 가기</Button>
+                        </NextLink>
+                    </Center>
+                </Box>
+            ) : (
+                <Formik
+                    initialValues={{ email: "" }}
+                    validationSchema={validationSchema}
+                    onSubmit={async values => {
+                        await forgotPassword({ variables: values });
+                        setComplete(true);
+                    }}
+                >
+                    {({ isSubmitting }) => (
                         <Form>
                             <InputField name="email" label="이메일" placeholder="이메일을 입력하세요." />
 
@@ -57,9 +58,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                                 비밀번호 찾기
                             </Button>
                         </Form>
-                    )
-                }
-            </Formik>
+                    )}
+                </Formik>
+            )}
         </Layout>
     );
 };

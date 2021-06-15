@@ -8,7 +8,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 
     // create reusable transporter object using the default SMTP transport
     const transporter = await nodemailer.createTransport({
-        host: "smtp.daum.net",
+        host: "smtp.gmail.com",
         port: 465,
         // secure: false, // true for 465, false for other ports
         auth: {

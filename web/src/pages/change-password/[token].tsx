@@ -57,6 +57,8 @@ const ChangePassword: NextPage = () => {
             <Formik
                 initialValues={{ newPassword: "", confirmNewPassword: "" }}
                 validationSchema={validationSchema}
+                validateOnChange={false}
+                validateOnBlur={false}
                 onSubmit={async (values, { setErrors }) => {
                     const { data } = await changePassword({
                         variables: {
